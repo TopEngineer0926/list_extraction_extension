@@ -4,24 +4,25 @@ import { useEffect, useState } from 'react';
 import {
   Box,
   ListItem,
-  ListItemButton,
-  ListItemText,
   Button,
+  TextField,
+  Typography,
+  IconButton,
 } from '@mui/material';
-import { FixedSizeList } from 'react-window';
+import ArrowUpwardIcon from '@mui/icons-material/ArrowUpward';
+import ArrowDownwardIcon from '@mui/icons-material/ArrowDownward';
+import RemoveIcon from '@mui/icons-material/Remove';
+import AddIcon from '@mui/icons-material/Add';
+import { styled } from '@mui/system';
 
-function renderRow(props) {
-  const { index, style } = props;
-
-  return (
-    <ListItem style={style} key={index} component="div" disablePadding>
-      <ListItemButton>
-        <ListItemText primary={`Item ${index + 1}`} />
-      </ListItemButton>
-    </ListItem>
-  );
-}
-
+const ListItemPanel = styled('div')({
+  display: 'flex',
+  alignItems: 'center',
+  cursor: 'pointer',
+  ':hover': {
+    background: '#eeeeee',
+  },
+});
 export default function App() {
   const [capturedText, setCapturedText] = useState('');
   const [listData, setListData] = useState([
@@ -55,9 +56,9 @@ export default function App() {
   }, [listData]);
 
   const handleClickGetText = () => {
-    // chrome.tabs.executeScript(null, {
-    //   code: 'console.log(document.documentElement.innerText);',
-    // });
+    chrome.tabs.executeScript(null, {
+      code: 'console.log(document.documentElement.innerText);',
+    });
     setCapturedText(document.documentElement.innerText);
   };
 
@@ -67,6 +68,59 @@ export default function App() {
   };
 
   const handleClickSave = () => {};
+
+  const handleClickAdd = (index) => {
+    let _tmpListData = [...tempListData];
+    _tmpListData.splice(index, 0, '');
+    setTempListData(_tmpListData);
+  };
+
+  const handleClickRemove = (index) => {
+    let _tmpListData = [...tempListData];
+    _tmpListData.splice(index, 1);
+    setTempListData(_tmpListData);
+  };
+
+  const handleChangeItemData = (e, index) => {
+    setTempListData(
+      tempListData.map((tempData, i) => {
+        if (i === index) {
+          return e.target.value;
+        }
+        return tempData;
+      })
+    );
+  };
+
+  const handleClickMoveUp = (index) => {
+    let selected = tempListData[index - 1];
+
+    setTempListData(
+      tempListData.map((tempData, i) => {
+        if (i === index - 1) {
+          return tempListData[index];
+        } else if (i === index) {
+          return selected;
+        }
+        return tempData;
+      })
+    );
+  };
+
+  const handleClickMoveDown = (index) => {
+    let selected = tempListData[index];
+
+    setTempListData(
+      tempListData.map((tempData, i) => {
+        if (i === index) {
+          return tempListData[i + 1];
+        } else if (i === index + 1) {
+          return selected;
+        }
+        return tempData;
+      })
+    );
+  };
 
   return capturedText.length === 0 ? (
     <Button variant="contained" onClick={handleClickGetText}>
@@ -84,15 +138,48 @@ export default function App() {
         display: 'grid',
       }}
     >
-      <FixedSizeList
-        height={400}
-        width={360}
-        itemSize={46}
-        itemCount={200}
-        overscanCount={5}
+      <Box
+        sx={{
+          height: 400,
+          width: 360,
+          overflowY: 'scroll',
+          border: '1px solid grey',
+        }}
       >
-        {renderRow}
-      </FixedSizeList>
+        {tempListData.map((tempData, index) => (
+          <ListItem key={index} component="div" disablePadding>
+            <ListItemPanel>
+              <Typography style={{ padding: 10 }}>{index + 1}</Typography>
+              <IconButton
+                onClick={() => handleClickMoveUp(index)}
+                disabled={index === 0}
+              >
+                <ArrowUpwardIcon />
+              </IconButton>
+              <IconButton
+                onClick={() => handleClickMoveDown(index)}
+                disabled={index === tempListData.length - 1}
+              >
+                <ArrowDownwardIcon />
+              </IconButton>
+              <TextField
+                margin="dense"
+                id="name"
+                multiline
+                variant="outlined"
+                value={tempData}
+                onChange={(e) => handleChangeItemData(e, index)}
+              />
+              <IconButton onClick={() => handleClickRemove(index)}>
+                <RemoveIcon />
+              </IconButton>
+              <IconButton onClick={() => handleClickAdd(index)}>
+                <AddIcon />
+              </IconButton>
+            </ListItemPanel>
+          </ListItem>
+        ))}
+      </Box>
       <div
         style={{
           display: 'flex',
