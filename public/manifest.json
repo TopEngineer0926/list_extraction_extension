@@ -4,8 +4,7 @@
   "version": "1.0",
   "manifest_version": 2,
   "browser_action": {
-    "default_popup": "index.html",
-    "default_title": "Open the popup"
+    "default_popup": "index.html"
   },
   "icons": {
     "16": "logo192.png",
@@ -13,10 +12,8 @@
     "128": "logo192.png"
   },
   "permissions": [
-    "tabs",
-    "notifications",
-    "http://*/",
-    "https://*/"
-  ],
-  "content_security_policy": "script-src 'self' 'unsafe-eval'; object-src 'self'"
+    "scripting",
+    "activeTab",
+    "<all_urls>"
+  ]
 }

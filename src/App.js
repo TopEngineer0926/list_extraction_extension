@@ -14,6 +14,7 @@ import ArrowDownwardIcon from '@mui/icons-material/ArrowDownward';
 import RemoveIcon from '@mui/icons-material/Remove';
 import AddIcon from '@mui/icons-material/Add';
 import { styled } from '@mui/system';
+import axios from 'axios';
 
 const ListItemPanel = styled('div')({
   display: 'flex',
@@ -23,8 +24,32 @@ const ListItemPanel = styled('div')({
     background: '#eeeeee',
   },
 });
+
+const ActionButtonGroup = styled('div')({
+  display: 'flex',
+  justifyContent: 'space-between',
+  alignItems: 'center',
+  marginBottom: '10px',
+});
+
+const TitilePanel = styled('div')({
+  display: 'flex',
+  alignItems: 'center',
+  justifyContent: 'center',
+  gap: '10px',
+});
+
+const TextCaptureButton = styled(Button)({
+  width: '100%',
+  display: 'flex',
+  justifyContent: 'center',
+});
+
+const API_ENDPOINT = 'https://moonhub-list-backend.herokuapp.com/api';
+
 export default function App() {
   const [capturedText, setCapturedText] = useState('');
+  const [title, setTitle] = useState('');
   const [listData, setListData] = useState([
     'LeewayHertz',
     'Intellectsoft',
@@ -56,10 +81,25 @@ export default function App() {
   }, [listData]);
 
   const handleClickGetText = () => {
-    chrome.tabs.executeScript(null, {
-      code: 'console.log(document.documentElement.innerText);',
-    });
-    setCapturedText(document.documentElement.innerText);
+    function modifyDOM() {
+      //You can play with your DOM here or check URL against your regex
+      console.log('Tab script:');
+      console.log(document.documentElement.innerText);
+      return document.documentElement.innerText;
+    }
+
+    //We have permission to access the activeTab, so we can call chrome.tabs.executeScript:
+    chrome.tabs.executeScript(
+      {
+        code: '(' + modifyDOM + ')();', //argument here is a string but function.toString() returns function's code
+      },
+      (results) => {
+        //Here we have just the innerHTML and not DOM structure
+        console.log('Popup script:');
+        console.log(results[0]);
+        setCapturedText(results[0]);
+      }
+    );
   };
 
   const handleClickDiscard = () => {
@@ -122,10 +162,28 @@ export default function App() {
     );
   };
 
+  const handleChangeTitle = (e) => {
+    setTitle(e.target.value);
+  };
+
+  useEffect(() => {
+    if (capturedText) {
+      fetchListData();
+    }
+  }, [capturedText]);
+
+  const fetchListData = async () => {
+    let result = await axios.get(
+      `${API_ENDPOINT}?list_text=${encodeURIComponent(capturedText)}`
+    ).data;
+
+    console.log('====', result);
+    setListData(result.list);
+  };
   return capturedText.length === 0 ? (
-    <Button variant="contained" onClick={handleClickGetText}>
+    <TextCaptureButton variant="contained" onClick={handleClickGetText}>
       Get Captured Text
-    </Button>
+    </TextCaptureButton>
   ) : (
     <Box
       sx={{
@@ -138,6 +196,18 @@ export default function App() {
         display: 'grid',
       }}
     >
+      <TitilePanel>
+        Name:{' '}
+        <TextField
+          margin="dense"
+          id="name"
+          multiline
+          fullWidth
+          variant="outlined"
+          value={title}
+          onChange={handleChangeTitle}
+        />
+      </TitilePanel>
       <Box
         sx={{
           height: 400,
@@ -180,20 +250,14 @@ export default function App() {
           </ListItem>
         ))}
       </Box>
-      <div
-        style={{
-          display: 'flex',
-          justifyContent: 'space-between',
-          alignItems: 'center',
-        }}
-      >
+      <ActionButtonGroup>
         <Button variant="contained" onClick={handleClickDiscard}>
           Discard
         </Button>
         <Button variant="contained" onClick={handleClickSave}>
           Save
         </Button>
-      </div>
+      </ActionButtonGroup>
     </Box>
   );
 }
