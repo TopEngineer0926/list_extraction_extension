@@ -16,6 +16,7 @@ import AddIcon from '@mui/icons-material/Add';
 import { styled } from '@mui/system';
 import axios from 'axios';
 import CircularIndeterminate from './components/CircularIndeterminate';
+import CheckCircleOutlineIcon from '@mui/icons-material/CheckCircleOutline';
 
 const ListItemPanel = styled('div')({
   display: 'flex',
@@ -41,7 +42,7 @@ const TitilePanel = styled('div')({
 });
 
 const TextCaptureButton = styled(Button)({
-  width: '80%',
+  width: '100%',
   display: 'flex',
   justifyContent: 'center',
 });
@@ -60,32 +61,10 @@ const API_ENDPOINT =
 export default function App() {
   const [capturedText, setCapturedText] = useState('');
   const [title, setTitle] = useState('');
-  const [listData, setListData] = useState([
-    'LeewayHertz',
-    'Intellectsoft',
-    'Blockchain Intelligence Group',
-    'Markovate',
-    'ChromaWay',
-    'Altoros',
-    'Deqode',
-    'Primechain',
-    'Suffescom Solutions Inc',
-    'Accubits',
-    'JatApp',
-    'SheerChain',
-    'Espeo',
-    '4ire Labs',
-    'Venture Aviator',
-    'Sparkbit',
-    'Software Mill',
-    'InfoPulse',
-    'Unicsoft',
-    'Axioma',
-    'Aeries Blockchain Corporation',
-    'Titanium Blockchain',
-  ]);
+  const [listData, setListData] = useState([]);
   const [tempListData, setTempListData] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
+  const [isSaveClicked, setIsSaveClicked] = useState(false);
 
   useEffect(() => {
     setTempListData(listData);
@@ -114,7 +93,10 @@ export default function App() {
     setTempListData(listData);
   };
 
-  const handleClickSave = () => {};
+  const handleClickSave = () => {
+    setIsSaveClicked(true);
+    setTimeout(() => window.close(), 750);
+  };
 
   const handleClickAdd = (index) => {
     let _tmpListData = [...tempListData];
@@ -276,7 +258,7 @@ export default function App() {
           Discard
         </Button>
         <Button variant="contained" onClick={handleClickSave}>
-          Save
+          {isSaveClicked ? <CheckCircleOutlineIcon /> : 'Save'}
         </Button>
       </ActionButtonGroup>
     </Box>
