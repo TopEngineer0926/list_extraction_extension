@@ -189,7 +189,7 @@ export default function App() {
       sx={{
         width: '100%',
         height: 400,
-        maxWidth: 360,
+        maxWidth: 600,
         bgcolor: 'background.paper',
         margin: '20px',
         gap: '20px',
@@ -211,7 +211,7 @@ export default function App() {
       <Box
         sx={{
           height: 400,
-          width: 360,
+          width: 590,
           overflowY: 'scroll',
           border: '1px solid grey',
         }}
@@ -238,6 +238,7 @@ export default function App() {
                 multiline
                 variant="outlined"
                 value={tempData}
+                style={{ width: '360px' }}
                 onChange={(e) => handleChangeItemData(e, index)}
               />
               <IconButton onClick={() => handleClickRemove(index)}>
