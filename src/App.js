@@ -15,6 +15,7 @@ import RemoveIcon from '@mui/icons-material/Remove';
 import AddIcon from '@mui/icons-material/Add';
 import { styled } from '@mui/system';
 import axios from 'axios';
+import CircularIndeterminate from './components/CircularIndeterminate';
 
 const ListItemPanel = styled('div')({
   display: 'flex',
@@ -40,12 +41,21 @@ const TitilePanel = styled('div')({
 });
 
 const TextCaptureButton = styled(Button)({
-  width: '100%',
+  width: '80%',
   display: 'flex',
   justifyContent: 'center',
 });
 
-const API_ENDPOINT = 'https://moonhub-list-backend.herokuapp.com/api';
+const LoadingPanel = styled(Box)(({ loading }) => ({
+  display: !loading ? 'none' : 'flex',
+  justifyContent: 'center',
+  flexDirection: 'column',
+  alignItems: 'center',
+  height: '100%',
+}));
+
+const API_ENDPOINT =
+  'https://list-extraction-backend-d44ypzkuba-uc.a.run.app/api';
 
 export default function App() {
   const [capturedText, setCapturedText] = useState('');
@@ -75,6 +85,7 @@ export default function App() {
     'Titanium Blockchain',
   ]);
   const [tempListData, setTempListData] = useState([]);
+  const [isLoading, setIsLoading] = useState(false);
 
   useEffect(() => {
     setTempListData(listData);
@@ -83,8 +94,6 @@ export default function App() {
   const handleClickGetText = () => {
     function modifyDOM() {
       //You can play with your DOM here or check URL against your regex
-      console.log('Tab script:');
-      console.log(document.documentElement.innerText);
       return document.documentElement.innerText;
     }
 
@@ -95,8 +104,6 @@ export default function App() {
       },
       (results) => {
         //Here we have just the innerHTML and not DOM structure
-        console.log('Popup script:');
-        console.log(results[0]);
         setCapturedText(results[0]);
       }
     );
@@ -173,17 +180,30 @@ export default function App() {
   }, [capturedText]);
 
   const fetchListData = async () => {
-    let result = await axios.get(
-      `${API_ENDPOINT}?list_text=${encodeURIComponent(capturedText)}`
-    ).data;
-
-    console.log('====', result);
-    setListData(result.list);
+    setIsLoading(true);
+    axios
+      .post(`${API_ENDPOINT}?list_text=${encodeURIComponent(capturedText)}`)
+      .then((res) => {
+        const data = res.data;
+        setListData(data.list);
+      })
+      .catch((err) => {
+        console.log(err);
+      })
+      .finally(() => {
+        setIsLoading(false);
+      });
   };
-  return capturedText.length === 0 ? (
-    <TextCaptureButton variant="contained" onClick={handleClickGetText}>
-      Get Captured Text
-    </TextCaptureButton>
+  return capturedText.length === 0 || isLoading ? (
+    <>
+      <TextCaptureButton variant="contained" onClick={handleClickGetText}>
+        Get Captured Text
+      </TextCaptureButton>
+      <LoadingPanel loading={isLoading ? isLoading : undefined}>
+        <CircularIndeterminate />
+        <Typography variant="">Extracting List...</Typography>
+      </LoadingPanel>
+    </>
   ) : (
     <Box
       sx={{
