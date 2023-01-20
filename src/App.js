@@ -163,8 +163,14 @@ export default function App() {
 
   const fetchListData = async () => {
     setIsLoading(true);
+
+    let data = {
+      list_text: encodeURIComponent(capturedText),
+      title: title,
+    };
+
     axios
-      .post(`${API_ENDPOINT}?list_text=${encodeURIComponent(capturedText)}`)
+      .post(API_ENDPOINT, JSON.stringify(data))
       .then((res) => {
         const data = res.data;
         setListData(data.list);
