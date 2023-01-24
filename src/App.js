@@ -55,13 +55,16 @@ const LoadingPanel = styled(Box)(({ loading }) => ({
   height: '100%',
 }));
 
-const API_ENDPOINT =
-  'https://list-extraction-backend-d44ypzkuba-uc.a.run.app/api';
+// const API_ENDPOINT =
+// 'https://list-extraction-backend-d44ypzkuba-uc.a.run.app/api';
+
+const API_ENDPOINT = 'http://localhost:8000/api';
 
 export default function App() {
   const [capturedText, setCapturedText] = useState('');
-  const [title, setTitle] = useState('');
+  const [title, setTitle] = useState('asdf');
   const [listData, setListData] = useState([]);
+  const [id, setId] = useState('');
   const [tempListData, setTempListData] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
   const [isSaveClicked, setIsSaveClicked] = useState(false);
@@ -94,8 +97,31 @@ export default function App() {
   };
 
   const handleClickSave = () => {
-    setIsSaveClicked(true);
-    setTimeout(() => window.close(), 750);
+    // setIsSaveClicked(true);
+    // setTimeout(() => window.close(), 750);
+
+    setIsLoading(true);
+
+    let data = {
+      return_data: listData,
+      title: title,
+    };
+
+    axios
+      .put(`${API_ENDPOINT}/list_text/${id}`, data, {
+        headers: { 'Content-Type': 'application/json' },
+      })
+      .then((res) => {
+        const data = res.data;
+
+        setListData(data.list);
+      })
+      .catch((err) => {
+        console.log(err);
+      })
+      .finally(() => {
+        setIsLoading(false);
+      });
   };
 
   const handleClickAdd = (index) => {
@@ -165,15 +191,18 @@ export default function App() {
     setIsLoading(true);
 
     let data = {
-      list_text: encodeURIComponent(capturedText),
+      request: capturedText,
       title: title,
     };
 
     axios
-      .post(API_ENDPOINT, JSON.stringify(data))
+      .post(`${API_ENDPOINT}/list_text`, data, {
+        headers: { 'Content-Type': 'application/json' },
+      })
       .then((res) => {
         const data = res.data;
-        setListData(data.list);
+        setListData(data.result);
+        setId(data.id);
       })
       .catch((err) => {
         console.log(err);
