@@ -46,7 +46,7 @@ const LoadingPanel = styled(Box)(({ loading }) => ({
 // const API_ENDPOINT =
 // 'https://list-extraction-backend-d44ypzkuba-uc.a.run.app/api';
 
-const API_ENDPOINT = 'http://192.168.105.55:8000/api';
+const API_ENDPOINT = 'http://localhost:8000/api';
 
 export default function App() {
   const [capturedText, setCapturedText] = useState('');
