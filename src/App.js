@@ -1,42 +1,30 @@
 /*global chrome*/
 import './App.css';
 import { useEffect, useState } from 'react';
+import { Box, Button, TextField, Typography, IconButton } from '@mui/material';
 import {
-  Box,
-  ListItem,
-  Button,
-  TextField,
-  Typography,
-  IconButton,
-} from '@mui/material';
-import ArrowUpwardIcon from '@mui/icons-material/ArrowUpward';
-import ArrowDownwardIcon from '@mui/icons-material/ArrowDownward';
-import RemoveIcon from '@mui/icons-material/Remove';
-import AddIcon from '@mui/icons-material/Add';
+  DeleteOutlineOutlined,
+  DragIndicator,
+  Add,
+  CheckCircleOutline,
+} from '@mui/icons-material';
 import { styled } from '@mui/system';
 import axios from 'axios';
 import CircularIndeterminate from './components/CircularIndeterminate';
-import CheckCircleOutlineIcon from '@mui/icons-material/CheckCircleOutline';
-
-const ListItemPanel = styled('div')({
-  display: 'flex',
-  alignItems: 'center',
-  cursor: 'pointer',
-  ':hover': {
-    background: '#eeeeee',
-  },
-});
+import { DragDropContext, Droppable, Draggable } from 'react-beautiful-dnd';
 
 const ActionButtonGroup = styled('div')({
+  width: '592px',
   display: 'flex',
-  justifyContent: 'space-between',
+  justifyContent: 'right',
   alignItems: 'center',
   marginBottom: '10px',
 });
 
 const TitilePanel = styled('div')({
+  width: '592px',
   display: 'flex',
-  alignItems: 'center',
+  flexDirection: 'column',
   justifyContent: 'center',
   gap: '10px',
 });
@@ -52,17 +40,17 @@ const LoadingPanel = styled(Box)(({ loading }) => ({
   justifyContent: 'center',
   flexDirection: 'column',
   alignItems: 'center',
-  height: '100%',
+  height: '98%',
 }));
 
 // const API_ENDPOINT =
 // 'https://list-extraction-backend-d44ypzkuba-uc.a.run.app/api';
 
-const API_ENDPOINT = 'http://localhost:8000/api';
+const API_ENDPOINT = 'http://192.168.105.55:8000/api';
 
 export default function App() {
   const [capturedText, setCapturedText] = useState('');
-  const [title, setTitle] = useState('asdf');
+  const [title, setTitle] = useState('');
   const [listData, setListData] = useState([]);
   const [id, setId] = useState('');
   const [tempListData, setTempListData] = useState([]);
@@ -137,44 +125,26 @@ export default function App() {
   };
 
   const handleChangeItemData = (e, index) => {
-    setTempListData(
-      tempListData.map((tempData, i) => {
-        if (i === index) {
-          return e.target.value;
-        }
-        return tempData;
-      })
-    );
+    let _tmpListData = tempListData.map((tempData, i) => {
+      if (i === index) {
+        return e.target.value;
+      }
+      return tempData;
+    });
+
+    setTempListData(_tmpListData);
   };
 
-  const handleClickMoveUp = (index) => {
-    let selected = tempListData[index - 1];
-
-    setTempListData(
-      tempListData.map((tempData, i) => {
-        if (i === index - 1) {
-          return tempListData[index];
-        } else if (i === index) {
-          return selected;
-        }
-        return tempData;
-      })
-    );
-  };
-
-  const handleClickMoveDown = (index) => {
-    let selected = tempListData[index];
-
-    setTempListData(
-      tempListData.map((tempData, i) => {
-        if (i === index) {
-          return tempListData[i + 1];
-        } else if (i === index + 1) {
-          return selected;
-        }
-        return tempData;
-      })
-    );
+  const handleDrop = (droppedItem) => {
+    // Ignore drop outside droppable container
+    if (!droppedItem.destination) return;
+    var updatedList = [...tempListData];
+    // Remove dragged item
+    const [reorderedItem] = updatedList.splice(droppedItem.source.index, 1);
+    // Add dropped item
+    updatedList.splice(droppedItem.destination.index, 0, reorderedItem);
+    // Update State
+    setTempListData(updatedList);
   };
 
   const handleChangeTitle = (e) => {
@@ -211,9 +181,14 @@ export default function App() {
         setIsLoading(false);
       });
   };
+
   return capturedText.length === 0 || isLoading ? (
     <>
-      <TextCaptureButton variant="contained" onClick={handleClickGetText}>
+      <TextCaptureButton
+        variant="contained"
+        onClick={handleClickGetText}
+        style={{ background: '#5f2ee5' }}
+      >
         Get Captured Text
       </TextCaptureButton>
       <LoadingPanel loading={isLoading ? isLoading : undefined}>
@@ -234,12 +209,13 @@ export default function App() {
       }}
     >
       <TitilePanel>
-        Name:{' '}
+        Name
         <TextField
           margin="dense"
           id="name"
           multiline
           fullWidth
+          size="small"
           variant="outlined"
           value={title}
           onChange={handleChangeTitle}
@@ -247,53 +223,103 @@ export default function App() {
       </TitilePanel>
       <Box
         sx={{
+          borderRadius: '4px',
           height: 400,
           width: 590,
           overflowY: 'scroll',
           border: '1px solid grey',
         }}
       >
-        {tempListData.map((tempData, index) => (
-          <ListItem key={index} component="div" disablePadding>
-            <ListItemPanel>
-              <Typography style={{ padding: 10 }}>{index + 1}</Typography>
-              <IconButton
-                onClick={() => handleClickMoveUp(index)}
-                disabled={index === 0}
-              >
-                <ArrowUpwardIcon />
-              </IconButton>
-              <IconButton
-                onClick={() => handleClickMoveDown(index)}
-                disabled={index === tempListData.length - 1}
-              >
-                <ArrowDownwardIcon />
-              </IconButton>
-              <TextField
-                margin="dense"
-                id="name"
-                multiline
-                variant="outlined"
-                value={tempData}
-                style={{ width: '360px' }}
-                onChange={(e) => handleChangeItemData(e, index)}
-              />
-              <IconButton onClick={() => handleClickRemove(index)}>
-                <RemoveIcon />
-              </IconButton>
-              <IconButton onClick={() => handleClickAdd(index)}>
-                <AddIcon />
-              </IconButton>
-            </ListItemPanel>
-          </ListItem>
-        ))}
+        <DragDropContext onDragEnd={handleDrop}>
+          <Droppable droppableId="list-container">
+            {(provided) => (
+              <div {...provided.droppableProps} ref={provided.innerRef}>
+                {tempListData.map((tempData, index) => {
+                  return (
+                    <>
+                      <Draggable
+                        key={tempData}
+                        draggableId={tempData}
+                        index={index}
+                      >
+                        {(provided) => (
+                          <div
+                            ref={provided.innerRef}
+                            {...provided.dragHandleProps}
+                            {...provided.draggableProps}
+                          >
+                            <div
+                              style={{ display: 'flex', flexDirection: 'row' }}
+                            >
+                              <div
+                                style={{ background: '#f9fafb', width: '35px' }}
+                              >
+                                <DragIndicator
+                                  style={{
+                                    marginLeft: '5px',
+                                    marginTop: '15px',
+                                    background: '#f9fafb',
+                                    color: '#89888e',
+                                  }}
+                                />
+                              </div>
+                              <Typography
+                                style={{
+                                  padding: '15px 8px 0px 5px',
+                                  width: '20px',
+                                }}
+                              >
+                                {index + 1}.
+                              </Typography>
+                              <TextField
+                                margin="dense"
+                                id="name"
+                                multiline
+                                size="small"
+                                variant="outlined"
+                                value={tempData}
+                                style={{
+                                  width: '450px',
+                                  background: '#f9fafb',
+                                }}
+                                onChange={(e) => handleChangeItemData(e, index)}
+                              />
+                              <IconButton
+                                onClick={() => handleClickRemove(index)}
+                              >
+                                <DeleteOutlineOutlined
+                                  style={{ color: '#eb6363' }}
+                                />
+                              </IconButton>
+                              <IconButton onClick={() => handleClickAdd(index)}>
+                                <Add />
+                              </IconButton>
+                            </div>
+                          </div>
+                        )}
+                      </Draggable>
+                    </>
+                  );
+                })}
+              </div>
+            )}
+          </Droppable>
+        </DragDropContext>
       </Box>
       <ActionButtonGroup>
-        <Button variant="contained" onClick={handleClickDiscard}>
+        <Button
+          variant="contained"
+          onClick={handleClickDiscard}
+          style={{ marginRight: '10px', color: '#5f2ee5', background: 'white' }}
+        >
           Discard
         </Button>
-        <Button variant="contained" onClick={handleClickSave}>
-          {isSaveClicked ? <CheckCircleOutlineIcon /> : 'Save'}
+        <Button
+          variant="contained"
+          onClick={handleClickSave}
+          style={{ background: '#5f2ee5' }}
+        >
+          {isSaveClicked ? <CheckCircleOutline /> : 'Save'}
         </Button>
       </ActionButtonGroup>
     </Box>
