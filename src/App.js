@@ -49,6 +49,7 @@ const LoadingPanel = styled(Box)(({ loading }) => ({
 const API_ENDPOINT = 'http://localhost:8000/api';
 
 export default function App() {
+  const [inputData, setInputData] = useState('');
   const [capturedText, setCapturedText] = useState('');
   const [title, setTitle] = useState('');
   const [listData, setListData] = useState([]);
@@ -56,6 +57,7 @@ export default function App() {
   const [tempListData, setTempListData] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
   const [isSaveClicked, setIsSaveClicked] = useState(false);
+  const [activeInput, setActiveInput] = useState();
 
   useEffect(() => {
     setTempListData(listData);
@@ -101,7 +103,6 @@ export default function App() {
       })
       .then((res) => {
         const data = res.data;
-
         setListData(data.return_data);
       })
       .catch((err) => {
@@ -125,6 +126,8 @@ export default function App() {
   };
 
   const handleChangeItemData = (e, index) => {
+    setActiveInput(index);
+
     let _tmpListData = tempListData.map((tempData, i) => {
       if (i === index) {
         return e.target.value;
@@ -278,11 +281,25 @@ export default function App() {
                                 size="small"
                                 variant="outlined"
                                 value={tempData}
+                                // defaultValue={tempData}
                                 style={{
                                   width: '450px',
                                   background: '#f9fafb',
                                 }}
                                 onChange={(e) => handleChangeItemData(e, index)}
+                                inputRef={(input) => {
+                                  if (activeInput === index)
+                                    input && input.focus();
+                                }}
+                                onFocus={(e) => {
+                                  if (activeInput === index) {
+                                    e.currentTarget.setSelectionRange(
+                                      e.currentTarget.value.length,
+                                      e.currentTarget.value.length
+                                    );
+                                    setActiveInput(null);
+                                  }
+                                }}
                               />
                               <IconButton
                                 onClick={() => handleClickRemove(index)}
