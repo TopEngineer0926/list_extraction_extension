@@ -47,7 +47,7 @@ const LoadingPanel = styled(Box)(({ loading }) => ({
 // const API_ENDPOINT =
 // 'https://list-extraction-backend-d44ypzkuba-uc.a.run.app/api';
 
-const API_ENDPOINT = 'http://localhost:8000/api';
+const API_ENDPOINT = 'http://78.141.202.187:80/api';
 
 export default function App() {
   const [inputData, setInputData] = useState('');
@@ -191,7 +191,7 @@ export default function App() {
   };
 
   return capturedText.length === 0 || isLoading ? (
-    <div style = {{width: '670px'}}>
+    <div style = {{width: '642px'}}>
       <TextCaptureButton
         variant="contained"
         onClick={handleClickGetText}
@@ -202,7 +202,7 @@ export default function App() {
       <div style={{display: isLoading ? 'none' : 'block' }}>
         <Card setExtractField ={setExtractField}/>
       </div>
-      <LoadingPanel loading={isLoading ? isLoading : undefined}>
+      <LoadingPanel loading={isLoading ? isLoading : undefined} style = {{marginTop: '226px'}}>
         <CircularIndeterminate />
         <Typography variant="">Extracting {extractField} List...</Typography>
       </LoadingPanel>
