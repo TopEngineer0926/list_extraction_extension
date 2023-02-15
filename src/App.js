@@ -41,7 +41,7 @@ const LoadingPanel = styled(Box)(({ loading }) => ({
   justifyContent: 'center',
   flexDirection: 'column',
   alignItems: 'center',
-  height: '98%',
+  height: '92%',
 }));
 
 // const API_ENDPOINT =
@@ -191,7 +191,7 @@ export default function App() {
   };
 
   return capturedText.length === 0 || isLoading ? (
-    <>
+    <div style = {{width: '670px'}}>
       <TextCaptureButton
         variant="contained"
         onClick={handleClickGetText}
@@ -204,9 +204,9 @@ export default function App() {
       </div>
       <LoadingPanel loading={isLoading ? isLoading : undefined}>
         <CircularIndeterminate />
-        <Typography variant="">Extracting List...</Typography>
+        <Typography variant="">Extracting {extractField} List...</Typography>
       </LoadingPanel>
-    </>
+    </div>
   ) : (
     <Box
       sx={{
