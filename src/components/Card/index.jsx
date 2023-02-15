@@ -28,7 +28,7 @@ const Card = ({setExtractField}) => {
       <TextField
         id="standard-basic" 
         value={other}
-        placeholder ="company"
+        placeholder ="companies, universities, titles, etc."
         onChange={(event) => {
           setOther(event.target.value);
           setChecked(event.target.value);
