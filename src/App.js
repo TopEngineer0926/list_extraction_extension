@@ -11,6 +11,7 @@ import {
 import { styled } from '@mui/system';
 import axios from 'axios';
 import CircularIndeterminate from './components/CircularIndeterminate';
+import Card from './components/Card';
 import { DragDropContext, Droppable, Draggable } from 'react-beautiful-dnd';
 
 const ActionButtonGroup = styled('div')({
@@ -58,6 +59,7 @@ export default function App() {
   const [isLoading, setIsLoading] = useState(false);
   const [isSaveClicked, setIsSaveClicked] = useState(false);
   const [activeInput, setActiveInput] = useState();
+  const [extractField, setExtractField] = useState("company")
 
   useEffect(() => {
     setTempListData(listData);
@@ -166,7 +168,10 @@ export default function App() {
     let data = {
       request: capturedText,
       title: title,
+      extract_field: extractField
     };
+
+    console.log(data)
 
     axios
       .post(`${API_ENDPOINT}/list_text`, data, {
@@ -194,6 +199,9 @@ export default function App() {
       >
         Get Captured Text
       </TextCaptureButton>
+      <div style={{display: isLoading ? 'none' : 'block' }}>
+        <Card setExtractField ={setExtractField}/>
+      </div>
       <LoadingPanel loading={isLoading ? isLoading : undefined}>
         <CircularIndeterminate />
         <Typography variant="">Extracting List...</Typography>
