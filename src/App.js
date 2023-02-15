@@ -22,7 +22,7 @@ const ActionButtonGroup = styled('div')({
   marginBottom: '10px',
 });
 
-const TitilePanel = styled('div')({
+const TitlePanel = styled('div')({
   width: '592px',
   display: 'flex',
   flexDirection: 'column',
@@ -50,7 +50,6 @@ const LoadingPanel = styled(Box)(({ loading }) => ({
 const API_ENDPOINT = 'http://78.141.202.187:80/api';
 
 export default function App() {
-  const [inputData, setInputData] = useState('');
   const [capturedText, setCapturedText] = useState('');
   const [title, setTitle] = useState('');
   const [listData, setListData] = useState([]);
@@ -89,8 +88,6 @@ export default function App() {
   };
 
   const handleClickSave = () => {
-    // setIsSaveClicked(true);
-    // setTimeout(() => window.close(), 750);
 
     setIsLoading(true);
 
@@ -213,13 +210,13 @@ export default function App() {
         width: '100%',
         height: 400,
         maxWidth: 600,
-        bgcolor: 'background.paper',
+        bgColor: 'background.paper',
         margin: '20px',
         gap: '20px',
         display: 'grid',
       }}
     >
-      <TitilePanel>
+      <TitlePanel>
         Name
         <TextField
           margin="dense"
@@ -231,7 +228,7 @@ export default function App() {
           value={title}
           onChange={handleChangeTitle}
         />
-      </TitilePanel>
+      </TitlePanel>
       <Box
         sx={{
           borderRadius: '4px',
@@ -289,7 +286,6 @@ export default function App() {
                                 size="small"
                                 variant="outlined"
                                 value={tempData}
-                                // defaultValue={tempData}
                                 style={{
                                   width: '450px',
                                   background: '#f9fafb',
