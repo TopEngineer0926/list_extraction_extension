@@ -44,10 +44,7 @@ const LoadingPanel = styled(Box)(({ loading }) => ({
   height: '92%',
 }));
 
-// const API_ENDPOINT =
-// 'https://list-extraction-backend-d44ypzkuba-uc.a.run.app/api';
-
-const API_ENDPOINT = 'http://78.141.202.187:80/api';
+const API_ENDPOINT = 'http://localhost:8000/api';
 
 export default function App() {
   const [capturedText, setCapturedText] = useState('');
@@ -95,6 +92,8 @@ export default function App() {
       return_data: listData,
       title: title,
     };
+
+    console.log(data)
 
     axios
       .put(`${API_ENDPOINT}/list_text/${id}`, data, {
@@ -197,7 +196,7 @@ export default function App() {
         Get Captured Text
       </TextCaptureButton>
       <div style={{display: isLoading ? 'none' : 'block' }}>
-        <Card setExtractField ={setExtractField}/>
+        <Card setExtractField ={setExtractField} handleClickGetText ={handleClickGetText}/>
       </div>
       <LoadingPanel loading={isLoading ? isLoading : undefined} style = {{marginTop: '226px'}}>
         <CircularIndeterminate />

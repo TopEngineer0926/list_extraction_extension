@@ -3,7 +3,7 @@ import './Card.css';
 import Box from '@mui/material/Box';
 import TextField from '@mui/material/TextField';
 
-const Card = ({setExtractField}) => {
+const Card = ({setExtractField, handleClickGetText}) => {
   const [other, setOther] = useState("")
 
   return(
@@ -17,13 +17,20 @@ const Card = ({setExtractField}) => {
         autoComplete="off"
       >
         <TextField
+          required
           id="standard-basic" 
           value={other}
           placeholder ="companies, universities, titles, etc."
           onChange={(event) => {
             setOther(event.target.value);
             setExtractField(event.target.value)
-          }} 
+          }}
+          onKeyPress={(ev) => {
+            console.log(`Pressed keyCode ${ev.key}`);
+            if (ev.key === 'Enter') {
+              handleClickGetText();
+            }
+          }}
           label="What to extract?" 
           variant="standard" 
         />
