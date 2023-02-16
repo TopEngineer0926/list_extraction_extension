@@ -3,7 +3,7 @@ import './Card.css';
 import Box from '@mui/material/Box';
 import TextField from '@mui/material/TextField';
 
-const Card = ({setExtractField, handleClickGetText}) => {
+const Card = ({setExtractField, handleClickGetText, setInvalidRequired}) => {
   const [other, setOther] = useState("")
 
   return(
@@ -23,7 +23,8 @@ const Card = ({setExtractField, handleClickGetText}) => {
           placeholder ="companies, universities, titles, etc."
           onChange={(event) => {
             setOther(event.target.value);
-            setExtractField(event.target.value)
+            setExtractField(event.target.value);
+            setInvalidRequired(false);
           }}
           onKeyPress={(ev) => {
             console.log(`Pressed keyCode ${ev.key}`);

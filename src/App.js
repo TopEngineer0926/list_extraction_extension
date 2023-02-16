@@ -1,7 +1,7 @@
 /*global chrome*/
 import './App.css';
 import { useEffect, useState } from 'react';
-import { Box, Button, TextField, Typography, IconButton } from '@mui/material';
+import { Box, Button, TextField, Typography, IconButton, FormLabel } from '@mui/material';
 import {
   DeleteOutlineOutlined,
   DragIndicator,
@@ -44,10 +44,10 @@ const LoadingPanel = styled(Box)(({ loading }) => ({
   height: '92%',
 }));
 
-const API_ENDPOINT =
-'https://moonhub-list-backend.herokuapp.com/api';
+// const API_ENDPOINT =
+// 'https://moonhub-list-backend.herokuapp.com/api';
 
-// const API_ENDPOINT = 'http://localhost:8000/api';
+const API_ENDPOINT = 'http://localhost:8000/api';
 
 export default function App() {
   const [capturedText, setCapturedText] = useState('');
@@ -58,28 +58,34 @@ export default function App() {
   const [isLoading, setIsLoading] = useState(false);
   const [isSaveClicked, setIsSaveClicked] = useState(false);
   const [activeInput, setActiveInput] = useState();
-  const [extractField, setExtractField] = useState("company")
+  const [extractField, setExtractField] = useState("")
+  const [invalidRequired, setInvalidRequired] = useState(false)
 
   useEffect(() => {
     setTempListData(listData);
   }, [listData]);
 
   const handleClickGetText = () => {
-    function modifyDOM() {
-      //You can play with your DOM here or check URL against your regex
-      return document.documentElement.innerText;
+    if(extractField == ""){
+      setInvalidRequired(true)
     }
-
-    //We have permission to access the activeTab, so we can call chrome.tabs.executeScript:
-    chrome.tabs.executeScript(
-      {
-        code: '(' + modifyDOM + ')();', //argument here is a string but function.toString() returns function's code
-      },
-      (results) => {
-        //Here we have just the innerHTML and not DOM structure
-        setCapturedText(results[0]);
+    else{
+      function modifyDOM() {
+        //You can play with your DOM here or check URL against your regex
+        return document.documentElement.innerText;
       }
-    );
+  
+      //We have permission to access the activeTab, so we can call chrome.tabs.executeScript:
+      chrome.tabs.executeScript(
+        {
+          code: '(' + modifyDOM + ')();', //argument here is a string but function.toString() returns function's code
+        },
+        (results) => {
+          //Here we have just the innerHTML and not DOM structure
+          setCapturedText(results[0]);
+        }
+      );
+    }
   };
 
   const handleClickDiscard = () => {
@@ -199,7 +205,10 @@ export default function App() {
         Get Captured Text
       </TextCaptureButton>
       <div style={{display: isLoading ? 'none' : 'block' }}>
-        <Card setExtractField ={setExtractField} handleClickGetText ={handleClickGetText}/>
+        <Card setExtractField ={setExtractField} handleClickGetText ={handleClickGetText} setInvalidRequired= {setInvalidRequired}/>
+        <FormLabel color='error' error={true} style={{display: invalidRequired ? 'block' : 'none', marginLeft:'38px' }}>
+          Please type what you want to extract...
+        </FormLabel>
       </div>
       <LoadingPanel loading={isLoading ? isLoading : undefined} style = {{marginTop: '226px'}}>
         <CircularIndeterminate />
