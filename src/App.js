@@ -44,10 +44,10 @@ const LoadingPanel = styled(Box)(({ loading }) => ({
   height: '92%',
 }));
 
-// const API_ENDPOINT =
-// 'https://moonhub-list-backend.herokuapp.com/api';
+const API_ENDPOINT =
+'https://moonhub-list-backend.herokuapp.com/api';
 
-const API_ENDPOINT = 'http://localhost:8000/api';
+// const API_ENDPOINT = 'http://localhost:8000/api';
 
 export default function App() {
   const [capturedText, setCapturedText] = useState('');
