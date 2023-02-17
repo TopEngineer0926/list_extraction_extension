@@ -44,10 +44,10 @@ const LoadingPanel = styled(Box)(({ loading }) => ({
   height: '92%',
 }));
 
-// const API_ENDPOINT =
-// 'https://moonhub-list-backend.herokuapp.com/api';
+const API_ENDPOINT =
+'https://moonhub-list-backend.herokuapp.com/api';
 
-const API_ENDPOINT = 'http://localhost:8000/api';
+// const API_ENDPOINT = 'http://localhost:8000/api';
 
 export default function App() {
   const [capturedText, setCapturedText] = useState('');
@@ -72,8 +72,7 @@ export default function App() {
       setUrl(url);
       // use `url` here inside the callback because it's asynchronous!
     });
-    console.log(url)
-    if(category == ""){
+    if(category.trim() == ""){
       setInvalidRequired(true)
     }
     else{
