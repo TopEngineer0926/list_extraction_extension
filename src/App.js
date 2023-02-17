@@ -8,46 +8,19 @@ import {
   Add,
   CheckCircleOutline,
 } from '@mui/icons-material';
-import { styled } from '@mui/system';
 import axios from 'axios';
 import CircularIndeterminate from './components/CircularIndeterminate';
 import Card from './components/Card';
+import ActionButtonGroup from './components/ActionButtonGroup';
+import LoadingPanel from './components/LoadingPanel';
+import TextCaptureButton from './components/TextCaptureButton';
+import TitlePanel from './components/TitlePanel';
 import { DragDropContext, Droppable, Draggable } from 'react-beautiful-dnd';
 
-const ActionButtonGroup = styled('div')({
-  width: '592px',
-  display: 'flex',
-  justifyContent: 'right',
-  alignItems: 'center',
-  marginBottom: '10px',
-});
+// const API_ENDPOINT =
+// 'https://moonhub-list-backend.herokuapp.com/api';
 
-const TitlePanel = styled('div')({
-  width: '592px',
-  display: 'flex',
-  flexDirection: 'column',
-  justifyContent: 'center',
-  gap: '10px',
-});
-
-const TextCaptureButton = styled(Button)({
-  width: '100%',
-  display: 'flex',
-  justifyContent: 'center',
-});
-
-const LoadingPanel = styled(Box)(({ loading }) => ({
-  display: !loading ? 'none' : 'flex',
-  justifyContent: 'center',
-  flexDirection: 'column',
-  alignItems: 'center',
-  height: '92%',
-}));
-
-const API_ENDPOINT =
-'https://moonhub-list-backend.herokuapp.com/api';
-
-// const API_ENDPOINT = 'http://localhost:8000/api';
+const API_ENDPOINT = 'http://localhost:8000/api';
 
 export default function App() {
   const [capturedText, setCapturedText] = useState('');
@@ -58,9 +31,9 @@ export default function App() {
   const [isLoading, setIsLoading] = useState(false);
   const [isSaveClicked, setIsSaveClicked] = useState(false);
   const [activeInput, setActiveInput] = useState();
-  const [category, setCategory] = useState("")
+  const [category, setCategory] = useState('')
   const [invalidRequired, setInvalidRequired] = useState(false)
-  const [url, setUrl] = useState("")
+  const [url, setUrl] = useState('')
 
   useEffect(() => {
     setTempListData(listData);
@@ -102,7 +75,7 @@ export default function App() {
   const handleClickSave = () => {
 
     setIsLoading(true);
-    setCategory("")
+    setCategory('')
 
     let data = {
       return_data: listData,
