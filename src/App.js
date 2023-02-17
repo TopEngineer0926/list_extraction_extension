@@ -44,10 +44,10 @@ const LoadingPanel = styled(Box)(({ loading }) => ({
   height: '92%',
 }));
 
-const API_ENDPOINT =
-'https://moonhub-list-backend.herokuapp.com/api';
+// const API_ENDPOINT =
+// 'https://moonhub-list-backend.herokuapp.com/api';
 
-// const API_ENDPOINT = 'http://localhost:8000/api';
+const API_ENDPOINT = 'http://localhost:8000/api';
 
 export default function App() {
   const [capturedText, setCapturedText] = useState('');
@@ -58,15 +58,22 @@ export default function App() {
   const [isLoading, setIsLoading] = useState(false);
   const [isSaveClicked, setIsSaveClicked] = useState(false);
   const [activeInput, setActiveInput] = useState();
-  const [extractField, setExtractField] = useState("")
+  const [category, setCategory] = useState("")
   const [invalidRequired, setInvalidRequired] = useState(false)
+  const [url, setUrl] = useState("")
 
   useEffect(() => {
     setTempListData(listData);
   }, [listData]);
 
   const handleClickGetText = () => {
-    if(extractField == ""){
+    chrome.tabs.query({active: true, lastFocusedWindow: true}, tabs => {
+      let url = tabs[0].url;
+      setUrl(url);
+      // use `url` here inside the callback because it's asynchronous!
+    });
+    console.log(url)
+    if(category == ""){
       setInvalidRequired(true)
     }
     else{
@@ -96,13 +103,12 @@ export default function App() {
   const handleClickSave = () => {
 
     setIsLoading(true);
+    setCategory("")
 
     let data = {
       return_data: listData,
       title: title,
     };
-
-    console.log(data)
 
     axios
       .put(`${API_ENDPOINT}/list_text/${id}`, data, {
@@ -169,30 +175,36 @@ export default function App() {
 
   const fetchListData = async () => {
     setIsLoading(true);
+    setCategory("")
 
-    let data = {
-      request: capturedText,
-      title: title,
-      extract_field: extractField
-    };
+    chrome.tabs.query({active: true, lastFocusedWindow: true}, tabs => {
+      let currentUrl = tabs[0].url;
+      setUrl(currentUrl);
+      // use `url` here inside the callback because it's asynchronous!
+      let data = {
+        request: capturedText,
+        title: title,
+        category: category,
+        url: url
+      };
+  
+      axios
+        .post(`${API_ENDPOINT}/list_text`, data, {
+          headers: { 'Content-Type': 'application/json' },
+        })
+        .then((res) => {
+          const data = res.data;
+          setListData(data.result);
+          setId(data.id);
+        })
+        .catch((err) => {
+          console.log(err);
+        })
+        .finally(() => {
+          setIsLoading(false);
+        });
+    });
 
-    console.log(data)
-
-    axios
-      .post(`${API_ENDPOINT}/list_text`, data, {
-        headers: { 'Content-Type': 'application/json' },
-      })
-      .then((res) => {
-        const data = res.data;
-        setListData(data.result);
-        setId(data.id);
-      })
-      .catch((err) => {
-        console.log(err);
-      })
-      .finally(() => {
-        setIsLoading(false);
-      });
   };
 
   return capturedText.length === 0 || isLoading ? (
@@ -205,14 +217,14 @@ export default function App() {
         Get Captured Text
       </TextCaptureButton>
       <div style={{display: isLoading ? 'none' : 'block' }}>
-        <Card setExtractField ={setExtractField} handleClickGetText ={handleClickGetText} setInvalidRequired= {setInvalidRequired}/>
+        <Card setCategory ={setCategory} handleClickGetText ={handleClickGetText} setInvalidRequired= {setInvalidRequired}/>
         <FormLabel color='error' error={true} style={{display: invalidRequired ? 'block' : 'none', marginLeft:'38px' }}>
           Please type what you want to extract...
         </FormLabel>
       </div>
       <LoadingPanel loading={isLoading ? isLoading : undefined} style = {{marginTop: '226px'}}>
         <CircularIndeterminate />
-        <Typography variant="">Extracting {extractField} List...</Typography>
+        <Typography variant="">Extracting {category} List...</Typography>
       </LoadingPanel>
     </div>
   ) : (
