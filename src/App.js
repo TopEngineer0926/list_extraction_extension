@@ -1,7 +1,14 @@
 /*global chrome*/
 import './App.css';
 import { useEffect, useState } from 'react';
-import { Box, Button, TextField, Typography, IconButton, FormLabel } from '@mui/material';
+import {
+  Box,
+  Button,
+  TextField,
+  Typography,
+  IconButton,
+  FormLabel,
+} from '@mui/material';
 import {
   DeleteOutlineOutlined,
   DragIndicator,
@@ -31,29 +38,28 @@ export default function App() {
   const [isLoading, setIsLoading] = useState(false);
   const [isSaveClicked, setIsSaveClicked] = useState(false);
   const [activeInput, setActiveInput] = useState();
-  const [category, setCategory] = useState('')
-  const [invalidRequired, setInvalidRequired] = useState(false)
-  const [url, setUrl] = useState('')
+  const [category, setCategory] = useState('');
+  const [invalidRequired, setInvalidRequired] = useState(false);
+  const [url, setUrl] = useState('');
 
   useEffect(() => {
     setTempListData(listData);
   }, [listData]);
 
   const handleClickGetText = () => {
-    chrome.tabs.query({active: true, lastFocusedWindow: true}, tabs => {
+    chrome.tabs.query({ active: true, lastFocusedWindow: true }, (tabs) => {
       let url = tabs[0].url;
       setUrl(url);
       // use `url` here inside the callback because it's asynchronous!
     });
-    if(category.trim() == ""){
-      setInvalidRequired(true)
-    }
-    else{
+    if (category.trim() == '') {
+      setInvalidRequired(true);
+    } else {
       function modifyDOM() {
         //You can play with your DOM here or check URL against your regex
         return document.documentElement.innerText;
       }
-  
+
       //We have permission to access the activeTab, so we can call chrome.tabs.executeScript:
       chrome.tabs.executeScript(
         {
@@ -73,9 +79,8 @@ export default function App() {
   };
 
   const handleClickSave = () => {
-
     setIsLoading(true);
-    setCategory('')
+    setCategory('');
 
     let data = {
       return_data: listData,
@@ -147,9 +152,9 @@ export default function App() {
 
   const fetchListData = async () => {
     setIsLoading(true);
-    setCategory("")
+    setCategory('');
 
-    chrome.tabs.query({active: true, lastFocusedWindow: true}, tabs => {
+    chrome.tabs.query({ active: true, lastFocusedWindow: true }, (tabs) => {
       let currentUrl = tabs[0].url;
       setUrl(currentUrl);
       // use `url` here inside the callback because it's asynchronous!
@@ -157,9 +162,9 @@ export default function App() {
         request: capturedText,
         title: title,
         category: category,
-        url: url
+        url: url,
       };
-  
+
       axios
         .post(`${API_ENDPOINT}/list_text`, data, {
           headers: { 'Content-Type': 'application/json' },
@@ -176,27 +181,40 @@ export default function App() {
           setIsLoading(false);
         });
     });
-
   };
 
   return capturedText.length === 0 || isLoading ? (
-    <div style = {{width: '642px'}}>
+    <div style={{ width: '642px' }}>
       <TextCaptureButton
-        variant="contained"
+        variant='contained'
         onClick={handleClickGetText}
         style={{ background: '#5f2ee5' }}
       >
         Get Captured Text
       </TextCaptureButton>
-      <div style={{display: isLoading ? 'none' : 'block' }}>
-        <Card setCategory ={setCategory} handleClickGetText ={handleClickGetText} setInvalidRequired= {setInvalidRequired}/>
-        <FormLabel color='error' error={true} style={{display: invalidRequired ? 'block' : 'none', marginLeft:'38px' }}>
+      <div style={{ display: isLoading ? 'none' : 'block' }}>
+        <Card
+          setCategory={setCategory}
+          handleClickGetText={handleClickGetText}
+          setInvalidRequired={setInvalidRequired}
+        />
+        <FormLabel
+          color='error'
+          error={true}
+          style={{
+            display: invalidRequired ? 'block' : 'none',
+            marginLeft: '38px',
+          }}
+        >
           Please type what you want to extract...
         </FormLabel>
       </div>
-      <LoadingPanel loading={isLoading ? isLoading : undefined} style = {{marginTop: '226px'}}>
+      <LoadingPanel
+        loading={isLoading ? isLoading : undefined}
+        style={{ marginTop: '226px' }}
+      >
         <CircularIndeterminate />
-        <Typography variant="">Extracting {category} List...</Typography>
+        <Typography variant=''>Extracting {category} List...</Typography>
       </LoadingPanel>
     </div>
   ) : (
@@ -214,12 +232,12 @@ export default function App() {
       <TitlePanel>
         Name
         <TextField
-          margin="dense"
-          id="name"
+          margin='dense'
+          id='name'
           multiline
           fullWidth
-          size="small"
-          variant="outlined"
+          size='small'
+          variant='outlined'
           value={title}
           onChange={handleChangeTitle}
         />
@@ -234,7 +252,7 @@ export default function App() {
         }}
       >
         <DragDropContext onDragEnd={handleDrop}>
-          <Droppable droppableId="list-container">
+          <Droppable droppableId='list-container'>
             {(provided) => (
               <div {...provided.droppableProps} ref={provided.innerRef}>
                 {tempListData.map((tempData, index) => {
@@ -275,11 +293,11 @@ export default function App() {
                                 {index + 1}.
                               </Typography>
                               <TextField
-                                margin="dense"
-                                id="name"
+                                margin='dense'
+                                id='name'
                                 multiline
-                                size="small"
-                                variant="outlined"
+                                size='small'
+                                variant='outlined'
                                 value={tempData}
                                 style={{
                                   width: '450px',
@@ -324,14 +342,14 @@ export default function App() {
       </Box>
       <ActionButtonGroup>
         <Button
-          variant="contained"
+          variant='contained'
           onClick={handleClickDiscard}
           style={{ marginRight: '10px', color: '#5f2ee5', background: 'white' }}
         >
           Discard
         </Button>
         <Button
-          variant="contained"
+          variant='contained'
           onClick={handleClickSave}
           style={{ background: '#5f2ee5' }}
         >

@@ -9,4 +9,4 @@ const LoadingPanel = styled(Box)(({ loading }) => ({
   height: '92%',
 }));
 
-export default LoadingPanel
+export default LoadingPanel;

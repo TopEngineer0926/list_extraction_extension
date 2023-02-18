@@ -8,4 +8,4 @@ const ActionButtonGroup = styled('div')({
   marginBottom: '10px',
 });
 
-export default ActionButtonGroup
+export default ActionButtonGroup;

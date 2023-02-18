@@ -8,4 +8,4 @@ const TitlePanel = styled('div')({
   gap: '10px',
 });
 
-export default TitlePanel
+export default TitlePanel;

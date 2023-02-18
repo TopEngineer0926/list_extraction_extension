@@ -7,4 +7,4 @@ const TextCaptureButton = styled(Button)({
   justifyContent: 'center',
 });
 
-export default TextCaptureButton
+export default TextCaptureButton;

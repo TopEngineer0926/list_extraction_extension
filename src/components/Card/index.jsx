@@ -3,24 +3,24 @@ import './Card.css';
 import Box from '@mui/material/Box';
 import TextField from '@mui/material/TextField';
 
-const Card = ({setCategory, handleClickGetText, setInvalidRequired}) => {
-  const [other, setOther] = useState("")
+const Card = ({ setCategory, handleClickGetText, setInvalidRequired }) => {
+  const [other, setOther] = useState('');
 
-  return(
-    <div class="main-container">
+  return (
+    <div class='main-container'>
       <Box
-        component="form"
+        component='form'
         sx={{
           '& > :not(style)': { m: 1, width: '90%' },
         }}
         noValidate
-        autoComplete="off"
+        autoComplete='off'
       >
         <TextField
           required
-          id="standard-basic" 
+          id='standard-basic'
           value={other}
-          placeholder ="companies, universities, titles, etc."
+          placeholder='companies, universities, titles, etc.'
           onChange={(event) => {
             setOther(event.target.value);
             setCategory(event.target.value);
@@ -32,12 +32,12 @@ const Card = ({setCategory, handleClickGetText, setInvalidRequired}) => {
               handleClickGetText();
             }
           }}
-          label="What to extract?" 
-          variant="standard" 
+          label='What to extract?'
+          variant='standard'
         />
       </Box>
     </div>
-  )
-}
+  );
+};
 
-export default Card
+export default Card;
