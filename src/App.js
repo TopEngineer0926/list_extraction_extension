@@ -24,10 +24,9 @@ import TextCaptureButton from './components/TextCaptureButton';
 import TitlePanel from './components/TitlePanel';
 import { DragDropContext, Droppable, Draggable } from 'react-beautiful-dnd';
 
-// const API_ENDPOINT =
-// 'https://moonhub-list-backend.herokuapp.com/api';
+const API_ENDPOINT = 'https://moonhub-list-backend.herokuapp.com/api';
 
-const API_ENDPOINT = 'http://localhost:8000/api';
+// const API_ENDPOINT = 'http://localhost:8000/api';
 
 export default function App() {
   const [capturedText, setCapturedText] = useState('');
