@@ -1,51 +1,30 @@
 /*global chrome*/
 import './App.css';
 import { useEffect, useState } from 'react';
-import { Box, Button, TextField, Typography, IconButton } from '@mui/material';
+import {
+  Box,
+  Button,
+  TextField,
+  Typography,
+  IconButton,
+  FormLabel,
+} from '@mui/material';
 import {
   DeleteOutlineOutlined,
   DragIndicator,
   Add,
   CheckCircleOutline,
 } from '@mui/icons-material';
-import { styled } from '@mui/system';
 import axios from 'axios';
 import CircularIndeterminate from './components/CircularIndeterminate';
 import Card from './components/Card';
+import ActionButtonGroup from './components/ActionButtonGroup';
+import LoadingPanel from './components/LoadingPanel';
+import TextCaptureButton from './components/TextCaptureButton';
+import TitlePanel from './components/TitlePanel';
 import { DragDropContext, Droppable, Draggable } from 'react-beautiful-dnd';
 
-const ActionButtonGroup = styled('div')({
-  width: '592px',
-  display: 'flex',
-  justifyContent: 'right',
-  alignItems: 'center',
-  marginBottom: '10px',
-});
-
-const TitlePanel = styled('div')({
-  width: '592px',
-  display: 'flex',
-  flexDirection: 'column',
-  justifyContent: 'center',
-  gap: '10px',
-});
-
-const TextCaptureButton = styled(Button)({
-  width: '100%',
-  display: 'flex',
-  justifyContent: 'center',
-});
-
-const LoadingPanel = styled(Box)(({ loading }) => ({
-  display: !loading ? 'none' : 'flex',
-  justifyContent: 'center',
-  flexDirection: 'column',
-  alignItems: 'center',
-  height: '92%',
-}));
-
-const API_ENDPOINT =
-'https://moonhub-list-backend.herokuapp.com/api';
+const API_ENDPOINT = 'https://moonhub-list-backend.herokuapp.com/api';
 
 // const API_ENDPOINT = 'http://localhost:8000/api';
 
@@ -58,28 +37,39 @@ export default function App() {
   const [isLoading, setIsLoading] = useState(false);
   const [isSaveClicked, setIsSaveClicked] = useState(false);
   const [activeInput, setActiveInput] = useState();
-  const [extractField, setExtractField] = useState("company")
+  const [category, setCategory] = useState('');
+  const [invalidRequired, setInvalidRequired] = useState(false);
+  const [url, setUrl] = useState('');
 
   useEffect(() => {
     setTempListData(listData);
   }, [listData]);
 
   const handleClickGetText = () => {
-    function modifyDOM() {
-      //You can play with your DOM here or check URL against your regex
-      return document.documentElement.innerText;
-    }
-
-    //We have permission to access the activeTab, so we can call chrome.tabs.executeScript:
-    chrome.tabs.executeScript(
-      {
-        code: '(' + modifyDOM + ')();', //argument here is a string but function.toString() returns function's code
-      },
-      (results) => {
-        //Here we have just the innerHTML and not DOM structure
-        setCapturedText(results[0]);
+    chrome.tabs.query({ active: true, lastFocusedWindow: true }, (tabs) => {
+      let url = tabs[0].url;
+      setUrl(url);
+      // use `url` here inside the callback because it's asynchronous!
+    });
+    if (category.trim() == '') {
+      setInvalidRequired(true);
+    } else {
+      function modifyDOM() {
+        //You can play with your DOM here or check URL against your regex
+        return document.documentElement.innerText;
       }
-    );
+
+      //We have permission to access the activeTab, so we can call chrome.tabs.executeScript:
+      chrome.tabs.executeScript(
+        {
+          code: '(' + modifyDOM + ')();', //argument here is a string but function.toString() returns function's code
+        },
+        (results) => {
+          //Here we have just the innerHTML and not DOM structure
+          setCapturedText(results[0]);
+        }
+      );
+    }
   };
 
   const handleClickDiscard = () => {
@@ -88,15 +78,13 @@ export default function App() {
   };
 
   const handleClickSave = () => {
-
     setIsLoading(true);
+    setCategory('');
 
     let data = {
       return_data: listData,
       title: title,
     };
-
-    console.log(data)
 
     axios
       .put(`${API_ENDPOINT}/list_text/${id}`, data, {
@@ -163,47 +151,69 @@ export default function App() {
 
   const fetchListData = async () => {
     setIsLoading(true);
+    setCategory('');
 
-    let data = {
-      request: capturedText,
-      title: title,
-      extract_field: extractField
-    };
+    chrome.tabs.query({ active: true, lastFocusedWindow: true }, (tabs) => {
+      let currentUrl = tabs[0].url;
+      setUrl(currentUrl);
+      // use `url` here inside the callback because it's asynchronous!
+      let data = {
+        request: capturedText,
+        title: title,
+        category: category,
+        url: url,
+      };
 
-    console.log(data)
-
-    axios
-      .post(`${API_ENDPOINT}/list_text`, data, {
-        headers: { 'Content-Type': 'application/json' },
-      })
-      .then((res) => {
-        const data = res.data;
-        setListData(data.result);
-        setId(data.id);
-      })
-      .catch((err) => {
-        console.log(err);
-      })
-      .finally(() => {
-        setIsLoading(false);
-      });
+      axios
+        .post(`${API_ENDPOINT}/list_text`, data, {
+          headers: { 'Content-Type': 'application/json' },
+        })
+        .then((res) => {
+          const data = res.data;
+          setListData(data.result);
+          setId(data.id);
+        })
+        .catch((err) => {
+          console.log(err);
+        })
+        .finally(() => {
+          setIsLoading(false);
+        });
+    });
   };
 
   return capturedText.length === 0 || isLoading ? (
-    <div style = {{width: '642px'}}>
+    <div style={{ width: '642px' }}>
       <TextCaptureButton
-        variant="contained"
+        variant='contained'
         onClick={handleClickGetText}
         style={{ background: '#5f2ee5' }}
       >
         Get Captured Text
       </TextCaptureButton>
-      <div style={{display: isLoading ? 'none' : 'block' }}>
-        <Card setExtractField ={setExtractField} handleClickGetText ={handleClickGetText}/>
+      <div style={{ display: isLoading ? 'none' : 'block' }}>
+        <Card
+          setCategory={setCategory}
+          handleClickGetText={handleClickGetText}
+          setInvalidRequired={setInvalidRequired}
+        />
+        <FormLabel
+          color='error'
+          error={true}
+          style={{
+            display: invalidRequired ? 'block' : 'none',
+            marginLeft: '38px',
+          }}
+        >
+          Please type what you want to extract...
+        </FormLabel>
       </div>
-      <LoadingPanel loading={isLoading ? isLoading : undefined} style = {{marginTop: '226px'}}>
+      <LoadingPanel
+        loading={isLoading ? isLoading : undefined}
+        style={{ marginTop: '226px' }}
+      >
         <CircularIndeterminate />
-        <Typography variant="">Extracting {extractField} List...</Typography>
+        <Typography variant=''>Extracting {category} List...</Typography>
       </LoadingPanel>
     </div>
   ) : (
@@ -221,12 +231,12 @@ export default function App() {
       <TitlePanel>
         Name
         <TextField
-          margin="dense"
-          id="name"
+          margin='dense'
+          id='name'
           multiline
           fullWidth
-          size="small"
-          variant="outlined"
+          size='small'
+          variant='outlined'
           value={title}
           onChange={handleChangeTitle}
         />
@@ -241,7 +251,7 @@ export default function App() {
         }}
       >
         <DragDropContext onDragEnd={handleDrop}>
-          <Droppable droppableId="list-container">
+          <Droppable droppableId='list-container'>
             {(provided) => (
               <div {...provided.droppableProps} ref={provided.innerRef}>
                 {tempListData.map((tempData, index) => {
@@ -282,11 +292,11 @@ export default function App() {
                                 {index + 1}.
                               </Typography>
                               <TextField
-                                margin="dense"
-                                id="name"
+                                margin='dense'
+                                id='name'
                                 multiline
-                                size="small"
-                                variant="outlined"
+                                size='small'
+                                variant='outlined'
                                 value={tempData}
                                 style={{
                                   width: '450px',
@@ -331,14 +341,14 @@ export default function App() {
       </Box>
       <ActionButtonGroup>
         <Button
-          variant="contained"
+          variant='contained'
           onClick={handleClickDiscard}
           style={{ marginRight: '10px', color: '#5f2ee5', background: 'white' }}
         >
           Discard
         </Button>
         <Button
-          variant="contained"
+          variant='contained'
           onClick={handleClickSave}
           style={{ background: '#5f2ee5' }}
         >
