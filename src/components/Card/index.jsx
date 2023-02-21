@@ -17,6 +17,12 @@ const Card = ({ setCategory, handleClickGetText, setInvalidRequired }) => {
         autoComplete='off'
       >
         <TextField
+          id='filled-basic'
+          label='Label'
+          variant='filled'
+          style={{ display: 'none' }}
+        />
+        <TextField
           required
           id='standard-basic'
           value={other}
