@@ -11,7 +11,7 @@ const Card = ({ setCategory, handleClickGetText, setInvalidRequired }) => {
       <Box
         component='form'
         sx={{
-          '& > :not(style)': { m: 1, width: '90%' },
+          '& > :not(style)': { m: 1, width: '96%' },
         }}
         noValidate
         autoComplete='off'
@@ -33,7 +33,6 @@ const Card = ({ setCategory, handleClickGetText, setInvalidRequired }) => {
             setInvalidRequired(false);
           }}
           onKeyPress={(ev) => {
-            console.log(`Pressed keyCode ${ev.key}`);
             if (ev.key === 'Enter') {
               handleClickGetText();
             }
