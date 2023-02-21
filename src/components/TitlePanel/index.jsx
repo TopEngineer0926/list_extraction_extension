@@ -6,6 +6,8 @@ const TitlePanel = styled('div')({
   flexDirection: 'column',
   justifyContent: 'center',
   gap: '10px',
+  marginTop: '4px',
+  marginBottom: '12px',
 });
 
 export default TitlePanel;
