@@ -106,6 +106,7 @@ export default function App() {
     let _tmpListData = [...tempListData];
     _tmpListData.splice(index, 0, '');
     setTempListData(_tmpListData);
+    setListData(_tmpListData);
   };
 
   const handleClickRemove = (index) => {
@@ -125,6 +126,7 @@ export default function App() {
     });
 
     setTempListData(_tmpListData);
+    setListData(_tmpListData);
   };
 
   const handleDrop = (droppedItem) => {
@@ -137,6 +139,7 @@ export default function App() {
     updatedList.splice(droppedItem.destination.index, 0, reorderedItem);
     // Update State
     setTempListData(updatedList);
+    setListData(updatedList);
   };
 
   const handleChangeTitle = (e) => {
@@ -229,16 +232,18 @@ export default function App() {
       }}
     >
       <TitlePanel>
-        Name
         <TextField
-          margin='dense'
-          id='name'
-          multiline
-          fullWidth
-          size='small'
-          variant='outlined'
+          required
+          id='outlined-required'
           value={title}
           onChange={handleChangeTitle}
+          onKeyPress={(ev) => {
+            if (ev.key === 'Enter') {
+              handleChangeTitle();
+            }
+          }}
+          label='Name'
+          variant='standard'
         />
       </TitlePanel>
       <Box
