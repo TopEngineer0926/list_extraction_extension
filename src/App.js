@@ -225,6 +225,14 @@ export default function App() {
     });
   };
 
+  const handleClickAddItems = () => {
+
+  }
+
+  const handleClickStartOver = () => {
+
+  }
+
   return capturedText.length === 0 || isLoading ? (
     <Router>
       <div style={{ width: '642px' }}>
