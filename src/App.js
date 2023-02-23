@@ -32,14 +32,14 @@ const API_ENDPOINT = 'https://moonhub-list-backend-develop.herokuapp.com/api';
 
 const ServerError = () => {
   return (
-    <>
+    <div style={{ margin: '8px' }}>
       <p>
         <h1>Oops!</h1>
       </p>
       <p>
         <h2>Can't get the list data. Please try again.</h2>
       </p>
-    </>
+    </div>
   );
 };
 
@@ -215,7 +215,9 @@ export default function App() {
               setListData(item.listData);
             }
           });
+          console.log(flag);
           if (flag === 0) {
+            console.log('first');
             goTo(ServerError);
           }
         })
