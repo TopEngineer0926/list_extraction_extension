@@ -25,7 +25,8 @@ import TextCaptureButton from './components/TextCaptureButton';
 import TitlePanel from './components/TitlePanel';
 import { DragDropContext, Droppable, Draggable } from 'react-beautiful-dnd';
 
-const API_ENDPOINT = 'https://moonhub-list-backend.herokuapp.com/api';
+// const API_ENDPOINT = 'https://moonhub-list-backend.herokuapp.com/api';
+const API_ENDPOINT = 'https://moonhub-list-backend-develop.herokuapp.com/api';
 
 // const API_ENDPOINT = 'http://localhost:8000/api';
 
@@ -97,7 +98,6 @@ export default function App() {
     setCapturedText('');
     setCategory('');
     setTempListData(listData);
-    console.log(listLog);
   };
 
   const handleClickSave = () => {
@@ -203,8 +203,6 @@ export default function App() {
           listLog.map((item) => {
             if (item.category && item.category === category) {
               flag = 1;
-              console.log(item.category);
-              console.log(category);
               setListData(item.listData);
             }
           });
