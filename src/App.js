@@ -1,6 +1,7 @@
 /*global chrome*/
 import './App.css';
 import { useEffect, useState } from 'react';
+import { goBack, goTo, Router } from 'react-chrome-extension-router';
 import {
   Box,
   Button,
@@ -24,9 +25,23 @@ import TextCaptureButton from './components/TextCaptureButton';
 import TitlePanel from './components/TitlePanel';
 import { DragDropContext, Droppable, Draggable } from 'react-beautiful-dnd';
 
-const API_ENDPOINT = 'https://moonhub-list-backend.herokuapp.com/api';
+// const API_ENDPOINT = 'https://moonhub-list-backend.herokuapp.com/api';
+const API_ENDPOINT = 'https://moonhub-list-backend-develop.herokuapp.com/api';
 
 // const API_ENDPOINT = 'http://localhost:8000/api';
+
+const ServerError = () => {
+  return (
+    <div style={{ margin: '8px' }}>
+      <p>
+        <h1>Oops!</h1>
+      </p>
+      <p>
+        <h2>Can't get the list data. Please try again.</h2>
+      </p>
+    </div>
+  );
+};
 
 export default function App() {
   const [capturedText, setCapturedText] = useState('');
@@ -40,6 +55,7 @@ export default function App() {
   const [category, setCategory] = useState('');
   const [invalidRequired, setInvalidRequired] = useState(false);
   const [url, setUrl] = useState('');
+  const [listLog, setListLog] = useState([]);
 
   useEffect(() => {
     setTempListData(listData);
@@ -51,7 +67,7 @@ export default function App() {
       setUrl(url);
       // use `url` here inside the callback because it's asynchronous!
     });
-    if (category.trim() == '') {
+    if (category.trim() === '') {
       setInvalidRequired(true);
     } else {
       function modifyDOM() {
@@ -73,13 +89,30 @@ export default function App() {
   };
 
   const handleClickDiscard = () => {
+    const data = {
+      category: category,
+      listData: listData,
+    };
+    let flag = 1;
+    listLog.map((item, index) => {
+      if (item.category && item.category === category) {
+        flag = 0;
+      }
+    });
+    if (flag === 1) {
+      let _tmpListLog = [...listLog];
+      _tmpListLog.push(data);
+      setListLog(_tmpListLog);
+    }
     setCapturedText('');
+    setCategory('');
     setTempListData(listData);
   };
 
   const handleClickSave = () => {
     setIsLoading(true);
     setCategory('');
+    setListData(tempListData);
 
     let data = {
       return_data: listData,
@@ -95,6 +128,7 @@ export default function App() {
         setListData(data.return_data);
       })
       .catch((err) => {
+        setTempListData(listData);
         console.log(err);
       })
       .finally(() => {
@@ -106,7 +140,6 @@ export default function App() {
     let _tmpListData = [...tempListData];
     _tmpListData.splice(index, 0, '');
     setTempListData(_tmpListData);
-    setListData(_tmpListData);
   };
 
   const handleClickRemove = (index) => {
@@ -126,7 +159,6 @@ export default function App() {
     });
 
     setTempListData(_tmpListData);
-    setListData(_tmpListData);
   };
 
   const handleDrop = (droppedItem) => {
@@ -139,7 +171,6 @@ export default function App() {
     updatedList.splice(droppedItem.destination.index, 0, reorderedItem);
     // Update State
     setTempListData(updatedList);
-    setListData(updatedList);
   };
 
   const handleChangeTitle = (e) => {
@@ -154,7 +185,6 @@ export default function App() {
 
   const fetchListData = async () => {
     setIsLoading(true);
-    setCategory('');
 
     chrome.tabs.query({ active: true, lastFocusedWindow: true }, (tabs) => {
       let currentUrl = tabs[0].url;
@@ -178,6 +208,16 @@ export default function App() {
         })
         .catch((err) => {
           console.log(err);
+          let flag = 0;
+          listLog.map((item) => {
+            if (item.category && item.category === category) {
+              flag = 1;
+              setListData(item.listData);
+            }
+          });
+          if (flag === 0) {
+            goTo(ServerError);
+          }
         })
         .finally(() => {
           setIsLoading(false);
@@ -186,180 +226,203 @@ export default function App() {
   };
 
   return capturedText.length === 0 || isLoading ? (
-    <div style={{ width: '642px' }}>
-      <TextCaptureButton
-        variant='contained'
-        onClick={handleClickGetText}
-        style={{ background: '#5f2ee5' }}
-      >
-        Get Captured Text
-      </TextCaptureButton>
-      <div style={{ display: isLoading ? 'none' : 'block' }}>
-        <Card
-          setCategory={setCategory}
-          handleClickGetText={handleClickGetText}
-          setInvalidRequired={setInvalidRequired}
-        />
-        <FormLabel
-          color='error'
-          error={true}
+    <Router>
+      <div style={{ width: '642px' }}>
+        <div style={{ display: isLoading ? 'none' : 'block' }}>
+          <Card
+            setCategory={setCategory}
+            handleClickGetText={handleClickGetText}
+            setInvalidRequired={setInvalidRequired}
+          />
+          <FormLabel
+            color='error'
+            error={true}
+            style={{
+              display: invalidRequired ? 'block' : 'none',
+              marginLeft: '38px',
+            }}
+          >
+            Please type what you want to extract...
+          </FormLabel>
+        </div>
+        <TextCaptureButton
+          variant='contained'
+          onClick={handleClickGetText}
           style={{
-            display: invalidRequired ? 'block' : 'none',
-            marginLeft: '38px',
+            background: '#5f2ee5',
+            width: '32%',
+            margin: 'auto',
+            marginTop: '20px',
           }}
         >
-          Please type what you want to extract...
-        </FormLabel>
+          Extract List
+        </TextCaptureButton>
+        <LoadingPanel
+          loading={isLoading ? isLoading : undefined}
+          style={{ marginTop: '226px' }}
+        >
+          <CircularIndeterminate />
+          <Typography variant=''>Extracting {category} List...</Typography>
+        </LoadingPanel>
       </div>
-      <LoadingPanel
-        loading={isLoading ? isLoading : undefined}
-        style={{ marginTop: '226px' }}
-      >
-        <CircularIndeterminate />
-        <Typography variant=''>Extracting {category} List...</Typography>
-      </LoadingPanel>
-    </div>
+    </Router>
   ) : (
-    <Box
-      sx={{
-        width: '100%',
-        height: 400,
-        maxWidth: 600,
-        bgColor: 'background.paper',
-        margin: '20px',
-        gap: '20px',
-        display: 'grid',
-      }}
-    >
-      <TitlePanel>
-        <TextField
-          required
-          id='outlined-required'
-          value={title}
-          onChange={handleChangeTitle}
-          onKeyPress={(ev) => {
-            if (ev.key === 'Enter') {
-              handleChangeTitle();
-            }
-          }}
-          label='Name'
-          variant='standard'
-        />
-      </TitlePanel>
+    <Router>
       <Box
         sx={{
-          borderRadius: '4px',
+          width: '100%',
           height: 400,
-          width: 590,
-          overflowY: 'scroll',
-          border: '1px solid grey',
+          maxWidth: 600,
+          bgColor: 'background.paper',
+          margin: '20px',
+          gap: '20px',
+          display: 'grid',
         }}
       >
-        <DragDropContext onDragEnd={handleDrop}>
-          <Droppable droppableId='list-container'>
-            {(provided) => (
-              <div {...provided.droppableProps} ref={provided.innerRef}>
-                {tempListData.map((tempData, index) => {
-                  return (
-                    <>
-                      <Draggable
-                        key={tempData}
-                        draggableId={tempData}
-                        index={index}
-                      >
-                        {(provided) => (
-                          <div
-                            ref={provided.innerRef}
-                            {...provided.dragHandleProps}
-                            {...provided.draggableProps}
-                          >
+        <TitlePanel>
+          <TextField
+            required
+            id='outlined-required'
+            value={title}
+            onChange={handleChangeTitle}
+            onKeyPress={(ev) => {
+              if (ev.key === 'Enter') {
+                handleChangeTitle();
+              }
+            }}
+            label='Name'
+            variant='standard'
+          />
+        </TitlePanel>
+        <Box
+          sx={{
+            borderRadius: '4px',
+            height: 400,
+            width: 590,
+            overflowY: 'scroll',
+            border: '1px solid grey',
+          }}
+        >
+          <DragDropContext onDragEnd={handleDrop}>
+            <Droppable droppableId='list-container'>
+              {(provided) => (
+                <div {...provided.droppableProps} ref={provided.innerRef}>
+                  {tempListData.map((tempData, index) => {
+                    return (
+                      <>
+                        <Draggable
+                          key={tempData}
+                          draggableId={tempData}
+                          index={index}
+                        >
+                          {(provided) => (
                             <div
-                              style={{ display: 'flex', flexDirection: 'row' }}
+                              ref={provided.innerRef}
+                              {...provided.dragHandleProps}
+                              {...provided.draggableProps}
                             >
                               <div
-                                style={{ background: '#f9fafb', width: '35px' }}
+                                style={{
+                                  display: 'flex',
+                                  flexDirection: 'row',
+                                }}
                               >
-                                <DragIndicator
+                                <div
                                   style={{
-                                    marginLeft: '5px',
-                                    marginTop: '15px',
                                     background: '#f9fafb',
-                                    color: '#89888e',
+                                    width: '35px',
+                                  }}
+                                >
+                                  <DragIndicator
+                                    style={{
+                                      marginLeft: '5px',
+                                      marginTop: '15px',
+                                      background: '#f9fafb',
+                                      color: '#89888e',
+                                    }}
+                                  />
+                                </div>
+                                <Typography
+                                  style={{
+                                    padding: '15px 8px 0px 5px',
+                                    width: '20px',
+                                  }}
+                                >
+                                  {index + 1}.
+                                </Typography>
+                                <TextField
+                                  margin='dense'
+                                  id='name'
+                                  multiline
+                                  size='small'
+                                  variant='outlined'
+                                  value={tempData}
+                                  style={{
+                                    width: '450px',
+                                    background: '#f9fafb',
+                                  }}
+                                  onChange={(e) =>
+                                    handleChangeItemData(e, index)
+                                  }
+                                  inputRef={(input) => {
+                                    if (activeInput === index)
+                                      input && input.focus();
+                                  }}
+                                  onFocus={(e) => {
+                                    if (activeInput === index) {
+                                      e.currentTarget.setSelectionRange(
+                                        e.currentTarget.value.length,
+                                        e.currentTarget.value.length
+                                      );
+                                      setActiveInput(null);
+                                    }
                                   }}
                                 />
+                                <IconButton
+                                  onClick={() => handleClickRemove(index)}
+                                >
+                                  <DeleteOutlineOutlined
+                                    style={{ color: '#eb6363' }}
+                                  />
+                                </IconButton>
+                                <IconButton
+                                  onClick={() => handleClickAdd(index)}
+                                >
+                                  <Add />
+                                </IconButton>
                               </div>
-                              <Typography
-                                style={{
-                                  padding: '15px 8px 0px 5px',
-                                  width: '20px',
-                                }}
-                              >
-                                {index + 1}.
-                              </Typography>
-                              <TextField
-                                margin='dense'
-                                id='name'
-                                multiline
-                                size='small'
-                                variant='outlined'
-                                value={tempData}
-                                style={{
-                                  width: '450px',
-                                  background: '#f9fafb',
-                                }}
-                                onChange={(e) => handleChangeItemData(e, index)}
-                                inputRef={(input) => {
-                                  if (activeInput === index)
-                                    input && input.focus();
-                                }}
-                                onFocus={(e) => {
-                                  if (activeInput === index) {
-                                    e.currentTarget.setSelectionRange(
-                                      e.currentTarget.value.length,
-                                      e.currentTarget.value.length
-                                    );
-                                    setActiveInput(null);
-                                  }
-                                }}
-                              />
-                              <IconButton
-                                onClick={() => handleClickRemove(index)}
-                              >
-                                <DeleteOutlineOutlined
-                                  style={{ color: '#eb6363' }}
-                                />
-                              </IconButton>
-                              <IconButton onClick={() => handleClickAdd(index)}>
-                                <Add />
-                              </IconButton>
                             </div>
-                          </div>
-                        )}
-                      </Draggable>
-                    </>
-                  );
-                })}
-              </div>
-            )}
-          </Droppable>
-        </DragDropContext>
+                          )}
+                        </Draggable>
+                      </>
+                    );
+                  })}
+                </div>
+              )}
+            </Droppable>
+          </DragDropContext>
+        </Box>
+        <ActionButtonGroup>
+          <Button
+            variant='contained'
+            onClick={handleClickDiscard}
+            style={{
+              marginRight: '10px',
+              color: '#5f2ee5',
+              background: 'white',
+            }}
+          >
+            Discard
+          </Button>
+          <Button
+            variant='contained'
+            onClick={handleClickSave}
+            style={{ background: '#5f2ee5' }}
+          >
+            {isSaveClicked ? <CheckCircleOutline /> : 'Save'}
+          </Button>
+        </ActionButtonGroup>
       </Box>
-      <ActionButtonGroup>
-        <Button
-          variant='contained'
-          onClick={handleClickDiscard}
-          style={{ marginRight: '10px', color: '#5f2ee5', background: 'white' }}
-        >
-          Discard
-        </Button>
-        <Button
-          variant='contained'
-          onClick={handleClickSave}
-          style={{ background: '#5f2ee5' }}
-        >
-          {isSaveClicked ? <CheckCircleOutline /> : 'Save'}
-        </Button>
-      </ActionButtonGroup>
-    </Box>
+    </Router>
   );
 }
