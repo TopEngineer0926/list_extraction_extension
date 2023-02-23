@@ -215,9 +215,7 @@ export default function App() {
               setListData(item.listData);
             }
           });
-          console.log(flag);
           if (flag === 0) {
-            console.log('first');
             goTo(ServerError);
           }
         })
