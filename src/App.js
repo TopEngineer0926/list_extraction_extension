@@ -31,7 +31,16 @@ const API_ENDPOINT = 'https://moonhub-list-backend-develop.herokuapp.com/api';
 // const API_ENDPOINT = 'http://localhost:8000/api';
 
 const ServerError = () => {
-  return <h1>Intenal Server Error</h1>;
+  return (
+    <>
+      <p>
+        <h1>Oops!</h1>
+      </p>
+      <p>
+        <h2>Can't get the list data. Please try again.</h2>
+      </p>
+    </>
+  );
 };
 
 export default function App() {
