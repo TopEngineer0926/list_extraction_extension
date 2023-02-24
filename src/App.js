@@ -26,9 +26,9 @@ import TitlePanel from './components/TitlePanel';
 import { DragDropContext, Droppable, Draggable } from 'react-beautiful-dnd';
 
 // const API_ENDPOINT = 'https://moonhub-list-backend.herokuapp.com/api';
-const API_ENDPOINT = 'https://moonhub-list-backend-develop.herokuapp.com/api';
+// const API_ENDPOINT = 'https://moonhub-list-backend-develop.herokuapp.com/api';
 
-// const API_ENDPOINT = 'http://localhost:8000/api';
+const API_ENDPOINT = 'http://192.168.105.55:8000/api';
 
 const ServerError = () => {
   return (
@@ -89,23 +89,6 @@ export default function App() {
   };
 
   const handleClickDiscard = () => {
-    const data = {
-      category: category,
-      listData: listData,
-    };
-    let flag = 1;
-    listLog.map((item, index) => {
-      if (item.category && item.category === category) {
-        flag = 0;
-      }
-    });
-    if (flag === 1) {
-      let _tmpListLog = [...listLog];
-      _tmpListLog.push(data);
-      setListLog(_tmpListLog);
-    }
-    setCapturedText('');
-    setCategory('');
     setTempListData(listData);
   };
 
@@ -230,7 +213,24 @@ export default function App() {
   }
 
   const handleClickStartOver = () => {
-
+    const data = {
+      category: category,
+      listData: listData,
+    };
+    let flag = 1;
+    listLog.map((item, index) => {
+      if (item.category && item.category === category) {
+        flag = 0;
+      }
+    });
+    if (flag === 1) {
+      let _tmpListLog = [...listLog];
+      _tmpListLog.push(data);
+      setListLog(_tmpListLog);
+    }
+    setCapturedText('');
+    setCategory('');
+    setTempListData(listData);
   }
 
   return capturedText.length === 0 || isLoading ? (
@@ -287,6 +287,26 @@ export default function App() {
           display: 'grid',
         }}
       >
+        <ActionButtonGroup>
+          <Button
+            variant='contained'
+            onClick={handleClickStartOver}
+            style={{
+              marginRight: '10px',
+              color: '#5f2ee5',
+              background: 'white',
+            }}
+          >
+            Start Over
+          </Button>
+          <Button
+            variant='contained'
+            onClick={handleClickAddItems}
+            style={{ background: '#5f2ee5' }}
+          >
+            Add Items
+          </Button>
+        </ActionButtonGroup>
         <TitlePanel>
           <TextField
             required
@@ -305,7 +325,7 @@ export default function App() {
         <Box
           sx={{
             borderRadius: '4px',
-            height: 400,
+            height: 350,
             width: 590,
             overflowY: 'scroll',
             border: '1px solid grey',
