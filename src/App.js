@@ -66,27 +66,31 @@ export default function App() {
     chrome.tabs.query({ active: true, lastFocusedWindow: true }, (tabs) => {
       let url = tabs[0].url;
       setUrl(url);
-      // use `url` here inside the callback because it's asynchronous!
-    });
-    if (category.trim() === '') {
-      setInvalidRequired(true);
-    } else {
-      function modifyDOM() {
-        //You can play with your DOM here or check URL against your regex
-        return document.documentElement.innerText;
-      }
-
-      //We have permission to access the activeTab, so we can call chrome.tabs.executeScript:
-      chrome.tabs.executeScript(
-        {
-          code: '(' + modifyDOM + ')();', //argument here is a string but function.toString() returns function's code
-        },
-        (results) => {
-          //Here we have just the innerHTML and not DOM structure
-          setCapturedText(results[0]);
+      let tabId = tabs[0].id;
+      if (category.trim() === '') {
+        setInvalidRequired(true);
+      } else {
+        function modifyDOM() {
+          //You can play with your DOM here or check URL against your regex
+          return document.documentElement.innerText;
         }
-      );
-    }
+
+        const functionToExecute = () => {
+          return '(' + modifyDOM + ')();';
+        };
+
+        //We have permission to access the activeTab, so we can call chrome.tabs.executeScript:
+        chrome.scripting.executeScript(
+          {
+            target: { tabId: tabId },
+            function: modifyDOM,
+          },
+          (results) => {
+            setCapturedText(results[0].result);
+          }
+        );
+      }
+    });
   };
 
   const getCapturedText = () => {
@@ -268,7 +272,7 @@ export default function App() {
 
   return capturedText.length === 0 || isLoading ? (
     <Router>
-      <div style={{ width: '642px' }}>
+      <div>
         <div style={{ display: isLoading ? 'none' : 'block' }}>
           <Card
             setCategory={setCategory}
