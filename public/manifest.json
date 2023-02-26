@@ -10,7 +10,7 @@
   "host_permissions": ["http://www.blogger.com/"],
   "optional_host_permissions": ["*://*/*"],
 
-  "short_name": "React Extension",
+  "short_name": "List Extraction",
   "action": {
     "default_popup": "index.html",
     "default_title": "List Extraction",
