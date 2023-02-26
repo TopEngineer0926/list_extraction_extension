@@ -13,7 +13,7 @@
   "short_name": "React Extension",
   "action": {
     "default_popup": "index.html",
-    "default_title": "React Chrome Extension",
+    "default_title": "List Extraction",
     "default_icon": {
       "16": "/images/react-logo-16.png",
       "32": "/images/react-logo-32.png",
