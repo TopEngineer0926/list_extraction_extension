@@ -28,7 +28,7 @@ import { DragDropContext, Droppable, Draggable } from 'react-beautiful-dnd';
 // const API_ENDPOINT = 'https://moonhub-list-backend.herokuapp.com/api';
 const API_ENDPOINT = 'https://moonhub-list-backend-develop.herokuapp.com/api';
 
-// const API_ENDPOINT = 'http://localhost:8000/api';
+//const API_ENDPOINT = 'http://192.168.105.55:8000/api';
 
 const ServerError = () => {
   return (
@@ -56,6 +56,7 @@ export default function App() {
   const [invalidRequired, setInvalidRequired] = useState(false);
   const [url, setUrl] = useState('');
   const [listLog, setListLog] = useState([]);
+  const [capturedTextForItems, setCapturedTextForItems] = useState('');
 
   useEffect(() => {
     setTempListData(listData);
@@ -88,24 +89,25 @@ export default function App() {
     }
   };
 
-  const handleClickDiscard = () => {
-    const data = {
-      category: category,
-      listData: listData,
-    };
-    let flag = 1;
-    listLog.map((item, index) => {
-      if (item.category && item.category === category) {
-        flag = 0;
-      }
-    });
-    if (flag === 1) {
-      let _tmpListLog = [...listLog];
-      _tmpListLog.push(data);
-      setListLog(_tmpListLog);
+  const getCapturedText = () => {
+    function modifyDOM() {
+      //You can play with your DOM here or check URL against your regex
+      return document.documentElement.innerText;
     }
-    setCapturedText('');
-    setCategory('');
+
+    //We have permission to access the activeTab, so we can call chrome.tabs.executeScript:
+    chrome.tabs.executeScript(
+      {
+        code: '(' + modifyDOM + ')();', //argument here is a string but function.toString() returns function's code
+      },
+      (results) => {
+        //Here we have just the innerHTML and not DOM structure
+        setCapturedTextForItems(results[0]);
+      }
+    );
+  }
+
+  const handleClickDiscard = () => {
     setTempListData(listData);
   };
 
@@ -179,11 +181,17 @@ export default function App() {
 
   useEffect(() => {
     if (capturedText) {
-      fetchListData();
+      fetchListData(capturedText);
     }
   }, [capturedText]);
 
-  const fetchListData = async () => {
+  useEffect(() => {
+    if (capturedTextForItems) {
+      fetchListData(capturedTextForItems);
+    }
+  }, [capturedTextForItems]);
+
+  const fetchListData = async (requestData) => {
     setIsLoading(true);
 
     chrome.tabs.query({ active: true, lastFocusedWindow: true }, (tabs) => {
@@ -191,7 +199,7 @@ export default function App() {
       setUrl(currentUrl);
       // use `url` here inside the callback because it's asynchronous!
       let data = {
-        request: capturedText,
+        request: requestData,
         title: title,
         category: category,
         url: url,
@@ -203,7 +211,15 @@ export default function App() {
         })
         .then((res) => {
           const data = res.data;
-          setListData(data.result);
+          let temp = [];
+
+          data.result && data.result.map((d, index) => {
+            if (listData.indexOf(d) < 0) {
+              temp.push(d);
+            }
+          });
+
+          setListData([...listData, ...temp]);
           setId(data.id);
         })
         .catch((err) => {
@@ -224,6 +240,31 @@ export default function App() {
         });
     });
   };
+
+  const handleClickAddItems = () => {
+    getCapturedText();
+  }
+
+  const handleClickStartOver = () => {
+    const data = {
+      category: category,
+      listData: listData,
+    };
+    let flag = 1;
+    listLog.map((item, index) => {
+      if (item.category && item.category === category) {
+        flag = 0;
+      }
+    });
+    if (flag === 1) {
+      let _tmpListLog = [...listLog];
+      _tmpListLog.push(data);
+      setListLog(_tmpListLog);
+    }
+    setCapturedText('');
+    setCategory('');
+    setTempListData(listData);
+  }
 
   return capturedText.length === 0 || isLoading ? (
     <Router>
@@ -279,6 +320,26 @@ export default function App() {
           display: 'grid',
         }}
       >
+        <ActionButtonGroup>
+          <Button
+            variant='contained'
+            onClick={handleClickStartOver}
+            style={{
+              marginRight: '10px',
+              color: '#5f2ee5',
+              background: 'white',
+            }}
+          >
+            Start Over
+          </Button>
+          <Button
+            variant='contained'
+            onClick={handleClickAddItems}
+            style={{ background: '#5f2ee5' }}
+          >
+            Add Items
+          </Button>
+        </ActionButtonGroup>
         <TitlePanel>
           <TextField
             required
@@ -297,7 +358,7 @@ export default function App() {
         <Box
           sx={{
             borderRadius: '4px',
-            height: 400,
+            height: 350,
             width: 590,
             overflowY: 'scroll',
             border: '1px solid grey',
