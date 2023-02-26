@@ -75,11 +75,6 @@ export default function App() {
           return document.documentElement.innerText;
         }
 
-        const functionToExecute = () => {
-          return '(' + modifyDOM + ')();';
-        };
-
-        //We have permission to access the activeTab, so we can call chrome.tabs.executeScript:
         chrome.scripting.executeScript(
           {
             target: { tabId: tabId },
