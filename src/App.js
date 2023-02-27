@@ -28,7 +28,7 @@ import { DragDropContext, Droppable, Draggable } from 'react-beautiful-dnd';
 // const API_ENDPOINT = 'https://moonhub-list-backend.herokuapp.com/api';
 const API_ENDPOINT = 'https://moonhub-list-backend-develop.herokuapp.com/api';
 
-//const API_ENDPOINT = 'http://192.168.105.55:8000/api';
+// const API_ENDPOINT = 'http://192.168.105.55:8000/api';
 
 const ServerError = () => {
   return (
@@ -63,29 +63,16 @@ export default function App() {
   }, [listData]);
 
   const handleClickGetText = () => {
-    chrome.tabs.query({ active: true, lastFocusedWindow: true }, (tabs) => {
-      let url = tabs[0].url;
-      setUrl(url);
-      let tabId = tabs[0].id;
-      if (category.trim() === '') {
-        setInvalidRequired(true);
-      } else {
-        function modifyDOM() {
-          //You can play with your DOM here or check URL against your regex
-          return document.documentElement.innerText;
-        }
-
-        chrome.scripting.executeScript(
-          {
-            target: { tabId: tabId },
-            function: modifyDOM,
-          },
-          (results) => {
-            setCapturedText(results[0].result);
-          }
-        );
-      }
-    });
+    if (category.trim() === '') {
+      setInvalidRequired(true);
+    } else {
+      var port = chrome.runtime.connect({ name: 'knockknock' });
+      port.postMessage({ joke: 'get-user-data' });
+      port.onMessage.addListener(function (msg) {
+        console.log(msg.result);
+        setCapturedText(msg.result);
+      });
+    }
   };
 
   const getCapturedText = () => {
@@ -104,7 +91,7 @@ export default function App() {
         setCapturedTextForItems(results[0]);
       }
     );
-  }
+  };
 
   const handleClickDiscard = () => {
     setTempListData(listData);
@@ -212,11 +199,12 @@ export default function App() {
           const data = res.data;
           let temp = [];
 
-          data.result && data.result.map((d, index) => {
-            if (listData.indexOf(d) < 0) {
-              temp.push(d);
-            }
-          });
+          data.result &&
+            data.result.map((d, index) => {
+              if (listData.indexOf(d) < 0) {
+                temp.push(d);
+              }
+            });
 
           setListData([...listData, ...temp]);
           setId(data.id);
@@ -242,7 +230,7 @@ export default function App() {
 
   const handleClickAddItems = () => {
     getCapturedText();
-  }
+  };
 
   const handleClickStartOver = () => {
     const data = {
@@ -263,7 +251,7 @@ export default function App() {
     setCapturedText('');
     setCategory('');
     setTempListData(listData);
-  }
+  };
 
   return capturedText.length === 0 || isLoading ? (
     <Router>
