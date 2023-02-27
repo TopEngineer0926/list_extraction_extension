@@ -8,11 +8,8 @@ chrome.runtime.onInstalled.addListener(() => {
 chrome.action.onClicked.addListener(createPanel);
 function createPanel(tab) {
   currentTab = tab;
-  console.log(tab);
   if (!tab) return;
   const contentWindowId = tab.windowId;
-  console.log('Turning ' + tab.url + ' red!');
-  console.log(contentWindowId);
   try {
     const panelWindowInfo = chrome.windows.create({
       url: chrome.runtime.getURL('index.html'),

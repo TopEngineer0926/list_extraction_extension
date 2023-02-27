@@ -69,28 +69,17 @@ export default function App() {
       var port = chrome.runtime.connect({ name: 'knockknock' });
       port.postMessage({ joke: 'get-user-data' });
       port.onMessage.addListener(function (msg) {
-        console.log(msg.result);
         setCapturedText(msg.result);
       });
     }
   };
 
   const getCapturedText = () => {
-    function modifyDOM() {
-      //You can play with your DOM here or check URL against your regex
-      return document.documentElement.innerText;
-    }
-
-    //We have permission to access the activeTab, so we can call chrome.tabs.executeScript:
-    chrome.tabs.executeScript(
-      {
-        code: '(' + modifyDOM + ')();', //argument here is a string but function.toString() returns function's code
-      },
-      (results) => {
-        //Here we have just the innerHTML and not DOM structure
-        setCapturedTextForItems(results[0]);
-      }
-    );
+    var port = chrome.runtime.connect({ name: 'knockknock' });
+    port.postMessage({ joke: 'get-user-data' });
+    port.onMessage.addListener(function (msg) {
+      setCapturedTextForItems(msg.result);
+    });
   };
 
   const handleClickDiscard = () => {
@@ -190,6 +179,8 @@ export default function App() {
         category: category,
         url: url,
       };
+
+      console.log(data);
 
       axios
         .post(`${API_ENDPOINT}/list_text`, data, {
