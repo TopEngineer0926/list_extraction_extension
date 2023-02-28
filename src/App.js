@@ -71,6 +71,7 @@ export default function App() {
       port.postMessage({ type: 'get-user-data' });
       port.onMessage.addListener(function (msg) {
         setCapturedText(msg.result);
+        setUrl(msg.url);
       });
     }
   };
@@ -79,6 +80,7 @@ export default function App() {
     port.postMessage({ type: 'get-user-data' });
     port.onMessage.addListener(function (msg) {
       setCapturedTextForItems(msg.result);
+      setUrl(msg.url);
     });
   };
 
@@ -166,57 +168,50 @@ export default function App() {
     }
   }, [capturedTextForItems]);
 
-  const fetchListData = async (requestData) => {
+  const fetchListData = (requestData) => {
     setIsLoading(true);
 
-    chrome.tabs.query({ active: true, lastFocusedWindow: true }, (tabs) => {
-      let currentUrl = tabs[0].url;
-      setUrl(currentUrl);
-      // use `url` here inside the callback because it's asynchronous!
-      let data = {
-        request: requestData,
-        title: title,
-        category: category,
-        url: url,
-      };
+    let body = {
+      request: requestData,
+      title: title,
+      category: category,
+      url: url,
+    };
 
-      console.log(data);
+    axios
+      .post(`${API_ENDPOINT}/list_text`, body, {
+        headers: { 'Content-Type': 'application/json' },
+      })
+      .then((res) => {
+        const data = res.data;
+        let temp = [];
 
-      axios
-        .post(`${API_ENDPOINT}/list_text`, data, {
-          headers: { 'Content-Type': 'application/json' },
-        })
-        .then((res) => {
-          const data = res.data;
-          let temp = [];
-
-          data.result &&
-            data.result.map((d, index) => {
-              if (listData.indexOf(d) < 0) {
-                temp.push(d);
-              }
-            });
-
-          setListData([...listData, ...temp]);
-          setId(data.id);
-        })
-        .catch((err) => {
-          console.log(err);
-          let flag = 0;
-          listLog.map((item) => {
-            if (item.category && item.category === category) {
-              flag = 1;
-              setListData(item.listData);
+        data.result &&
+          data.result.map((d, index) => {
+            if (listData.indexOf(d) < 0) {
+              temp.push(d);
             }
           });
-          if (flag === 0) {
-            goTo(ServerError);
+
+        setTempListData([...tempListData, ...temp]);
+        setId(data.id);
+      })
+      .catch((err) => {
+        console.log(err);
+        let flag = 0;
+        listLog.map((item) => {
+          if (item.category && item.category === category) {
+            flag = 1;
+            setListData(item.listData);
           }
-        })
-        .finally(() => {
-          setIsLoading(false);
         });
-    });
+        if (flag === 0) {
+          goTo(ServerError);
+        }
+      })
+      .finally(() => {
+        setIsLoading(false);
+      });
   };
 
   const handleClickAddItems = () => {

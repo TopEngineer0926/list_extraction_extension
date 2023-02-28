@@ -36,7 +36,7 @@ chrome.runtime.onConnect.addListener(function (port) {
           function: modifyDOM,
         },
         (results) => {
-          port.postMessage({ result: results[0].result });
+          port.postMessage({ result: results[0].result, url: currentTab.url });
         }
       );
     }
