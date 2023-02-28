@@ -14,8 +14,8 @@ function createPanel(tab) {
     const panelWindowInfo = chrome.windows.create({
       url: chrome.runtime.getURL('index.html'),
       type: 'panel',
-      height: 627,
-      width: 642,
+      height: 630,
+      width: 660
     });
   } catch (error) {
     console.log(error);
@@ -23,21 +23,22 @@ function createPanel(tab) {
 }
 
 chrome.runtime.onConnect.addListener(function (port) {
-  console.assert(port.name === 'knockknock');
+  console.assert(port.name === 'init_list_extraction');
   port.onMessage.addListener(function (msg) {
-    function modifyDOM() {
-      //You can play with your DOM here or check URL against your regex
-      return document.documentElement.innerText;
-    }
-    chrome.scripting.executeScript(
-      {
-        target: { tabId: currentTab.id },
-        function: modifyDOM,
-      },
-      (results) => {
-        // setCapturedText(results[0].result);
-        port.postMessage({ result: results[0].result });
+    if (msg.type === 'get-user-data') {
+      function modifyDOM() {
+        //You can play with your DOM here or check URL against your regex
+        return document.documentElement.innerText;
       }
-    );
+      chrome.scripting.executeScript(
+        {
+          target: { tabId: currentTab.id },
+          function: modifyDOM,
+        },
+        (results) => {
+          port.postMessage({ result: results[0].result });
+        }
+      );
+    }
   });
 });

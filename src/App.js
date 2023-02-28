@@ -26,9 +26,9 @@ import TitlePanel from './components/TitlePanel';
 import { DragDropContext, Droppable, Draggable } from 'react-beautiful-dnd';
 
 // const API_ENDPOINT = 'https://moonhub-list-backend.herokuapp.com/api';
-const API_ENDPOINT = 'https://moonhub-list-backend-develop.herokuapp.com/api';
+// const API_ENDPOINT = 'https://moonhub-list-backend-develop.herokuapp.com/api';
 
-// const API_ENDPOINT = 'http://192.168.105.55:8000/api';
+const API_ENDPOINT = 'http://192.168.105.55:8000/api';
 
 const ServerError = () => {
   return (
@@ -58,6 +58,8 @@ export default function App() {
   const [listLog, setListLog] = useState([]);
   const [capturedTextForItems, setCapturedTextForItems] = useState('');
 
+  let port = chrome.runtime.connect({ name: 'init_list_extraction' });
+
   useEffect(() => {
     setTempListData(listData);
   }, [listData]);
@@ -66,8 +68,7 @@ export default function App() {
     if (category.trim() === '') {
       setInvalidRequired(true);
     } else {
-      var port = chrome.runtime.connect({ name: 'knockknock' });
-      port.postMessage({ joke: 'get-user-data' });
+      port.postMessage({ type: 'get-user-data' });
       port.onMessage.addListener(function (msg) {
         setCapturedText(msg.result);
       });
@@ -75,8 +76,7 @@ export default function App() {
   };
 
   const getCapturedText = () => {
-    var port = chrome.runtime.connect({ name: 'knockknock' });
-    port.postMessage({ joke: 'get-user-data' });
+    port.postMessage({ type: 'get-user-data' });
     port.onMessage.addListener(function (msg) {
       setCapturedTextForItems(msg.result);
     });
