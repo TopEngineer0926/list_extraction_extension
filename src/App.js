@@ -188,7 +188,7 @@ export default function App() {
 
         data.result &&
           data.result.map((d, index) => {
-            if (listData.indexOf(d) < 0) {
+            if (tempListData.indexOf(d) < 0) {
               temp.push(d);
             }
           });
