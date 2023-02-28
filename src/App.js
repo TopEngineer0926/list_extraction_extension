@@ -26,9 +26,9 @@ import TitlePanel from './components/TitlePanel';
 import { DragDropContext, Droppable, Draggable } from 'react-beautiful-dnd';
 
 // const API_ENDPOINT = 'https://moonhub-list-backend.herokuapp.com/api';
-// const API_ENDPOINT = 'https://moonhub-list-backend-develop.herokuapp.com/api';
+const API_ENDPOINT = 'https://moonhub-list-backend-develop.herokuapp.com/api';
 
-const API_ENDPOINT = 'http://192.168.105.55:8000/api';
+// const API_ENDPOINT = 'http://192.168.105.55:8000/api';
 
 const ServerError = () => {
   return (
