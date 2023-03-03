@@ -1,7 +1,7 @@
 /*global chrome*/
-import './App.css';
-import { useEffect, useState } from 'react';
-import { goBack, goTo, Router } from 'react-chrome-extension-router';
+import "./App.css";
+import { useEffect, useState } from "react";
+import { goBack, goTo, Router } from "react-chrome-extension-router";
 import {
   Box,
   Button,
@@ -9,30 +9,30 @@ import {
   Typography,
   IconButton,
   FormLabel,
-} from '@mui/material';
+} from "@mui/material";
 import {
   DeleteOutlineOutlined,
   DragIndicator,
   Add,
   CheckCircleOutline,
-} from '@mui/icons-material';
-import axios from 'axios';
-import CircularIndeterminate from './components/CircularIndeterminate';
-import Card from './components/Card';
-import ActionButtonGroup from './components/ActionButtonGroup';
-import LoadingPanel from './components/LoadingPanel';
-import TextCaptureButton from './components/TextCaptureButton';
-import TitlePanel from './components/TitlePanel';
-import { DragDropContext, Droppable, Draggable } from 'react-beautiful-dnd';
+} from "@mui/icons-material";
+import axios from "axios";
+import CircularIndeterminate from "./components/CircularIndeterminate";
+import Card from "./components/Card";
+import ActionButtonGroup from "./components/ActionButtonGroup";
+import LoadingPanel from "./components/LoadingPanel";
+import TextCaptureButton from "./components/TextCaptureButton";
+import TitlePanel from "./components/TitlePanel";
+import { DragDropContext, Droppable, Draggable } from "react-beautiful-dnd";
 
 // const API_ENDPOINT = 'https://moonhub-list-backend.herokuapp.com/api';
-const API_ENDPOINT = 'https://moonhub-list-backend-develop.herokuapp.com/api';
+const API_ENDPOINT = "https://moonhub-list-backend-develop.herokuapp.com/api";
 
 // const API_ENDPOINT = 'http://192.168.105.55:8000/api';
 
 const ServerError = () => {
   return (
-    <div style={{ margin: '8px' }}>
+    <div style={{ margin: "8px" }}>
       <p>
         <h1>Oops!</h1>
       </p>
@@ -44,31 +44,31 @@ const ServerError = () => {
 };
 
 export default function App() {
-  const [capturedText, setCapturedText] = useState('');
-  const [title, setTitle] = useState('');
+  const [capturedText, setCapturedText] = useState("");
+  const [title, setTitle] = useState("");
   const [listData, setListData] = useState([]);
-  const [id, setId] = useState('');
+  const [id, setId] = useState("");
   const [tempListData, setTempListData] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
   const [isSaveClicked, setIsSaveClicked] = useState(false);
   const [activeInput, setActiveInput] = useState();
-  const [category, setCategory] = useState('');
+  const [category, setCategory] = useState("");
   const [invalidRequired, setInvalidRequired] = useState(false);
-  const [url, setUrl] = useState('');
+  const [url, setUrl] = useState("");
   const [listLog, setListLog] = useState([]);
-  const [capturedTextForItems, setCapturedTextForItems] = useState('');
+  const [capturedTextForItems, setCapturedTextForItems] = useState("");
 
-  let port = chrome.runtime.connect({ name: 'init_list_extraction' });
+  let port = chrome.runtime.connect({ name: "init_list_extraction" });
 
   useEffect(() => {
     setTempListData(listData);
   }, [listData]);
 
   const handleClickGetText = () => {
-    if (category.trim() === '') {
+    if (category.trim() === "") {
       setInvalidRequired(true);
     } else {
-      port.postMessage({ type: 'get-user-data' });
+      port.postMessage({ type: "get-user-data" });
       port.onMessage.addListener(function (msg) {
         setCapturedText(msg.result);
         setUrl(msg.url);
@@ -77,7 +77,7 @@ export default function App() {
   };
 
   const getCapturedText = () => {
-    port.postMessage({ type: 'get-user-data' });
+    port.postMessage({ type: "get-user-data" });
     port.onMessage.addListener(function (msg) {
       setCapturedTextForItems(msg.result);
       setUrl(msg.url);
@@ -90,7 +90,7 @@ export default function App() {
 
   const handleClickSave = () => {
     setIsLoading(true);
-    setCategory('');
+    setCategory("");
     setListData(tempListData);
 
     let data = {
@@ -100,7 +100,7 @@ export default function App() {
 
     axios
       .put(`${API_ENDPOINT}/list_text/${id}`, data, {
-        headers: { 'Content-Type': 'application/json' },
+        headers: { "Content-Type": "application/json" },
       })
       .then((res) => {
         const data = res.data;
@@ -117,7 +117,7 @@ export default function App() {
 
   const handleClickAdd = (index) => {
     let _tmpListData = [...tempListData];
-    _tmpListData.splice(index, 0, '');
+    _tmpListData.splice(index, 0, "");
     setTempListData(_tmpListData);
   };
 
@@ -180,7 +180,7 @@ export default function App() {
 
     axios
       .post(`${API_ENDPOINT}/list_text`, body, {
-        headers: { 'Content-Type': 'application/json' },
+        headers: { "Content-Type": "application/json" },
       })
       .then((res) => {
         const data = res.data;
@@ -234,49 +234,49 @@ export default function App() {
       _tmpListLog.push(data);
       setListLog(_tmpListLog);
     }
-    setCapturedText('');
-    setCategory('');
+    setCapturedText("");
+    setCategory("");
     setTempListData(listData);
   };
 
   return capturedText.length === 0 || isLoading ? (
     <Router>
       <div>
-        <div style={{ display: isLoading ? 'none' : 'block' }}>
+        <div style={{ display: isLoading ? "none" : "block" }}>
           <Card
             setCategory={setCategory}
             handleClickGetText={handleClickGetText}
             setInvalidRequired={setInvalidRequired}
           />
           <FormLabel
-            color='error'
+            color="error"
             error={true}
             style={{
-              display: invalidRequired ? 'block' : 'none',
-              marginLeft: '38px',
+              display: invalidRequired ? "block" : "none",
+              marginLeft: "38px",
             }}
           >
             Please type what you want to extract...
           </FormLabel>
         </div>
         <TextCaptureButton
-          variant='contained'
+          variant="contained"
           onClick={handleClickGetText}
           style={{
-            background: '#5f2ee5',
-            width: '32%',
-            margin: 'auto',
-            marginTop: '20px',
+            background: "#5f2ee5",
+            width: "32%",
+            margin: "auto",
+            marginTop: "20px",
           }}
         >
           Extract List
         </TextCaptureButton>
         <LoadingPanel
           loading={isLoading ? isLoading : undefined}
-          style={{ marginTop: '226px' }}
+          style={{ marginTop: "226px" }}
         >
           <CircularIndeterminate />
-          <Typography variant=''>Extracting {category} List...</Typography>
+          <Typography variant="">Extracting {category} List...</Typography>
         </LoadingPanel>
       </div>
     </Router>
@@ -284,31 +284,31 @@ export default function App() {
     <Router>
       <Box
         sx={{
-          width: '100%',
+          width: "100%",
           height: 400,
           maxWidth: 600,
-          bgColor: 'background.paper',
-          margin: '20px',
-          gap: '20px',
-          display: 'grid',
+          bgColor: "background.paper",
+          margin: "20px",
+          gap: "20px",
+          display: "grid",
         }}
       >
         <ActionButtonGroup>
           <Button
-            variant='contained'
+            variant="contained"
             onClick={handleClickStartOver}
             style={{
-              marginRight: '10px',
-              color: '#5f2ee5',
-              background: 'white',
+              marginRight: "10px",
+              color: "#5f2ee5",
+              background: "white",
             }}
           >
             Start Over
           </Button>
           <Button
-            variant='contained'
+            variant="contained"
             onClick={handleClickAddItems}
-            style={{ background: '#5f2ee5' }}
+            style={{ background: "#5f2ee5" }}
           >
             Add Items
           </Button>
@@ -316,29 +316,29 @@ export default function App() {
         <TitlePanel>
           <TextField
             required
-            id='outlined-required'
+            id="outlined-required"
             value={title}
             onChange={handleChangeTitle}
             onKeyPress={(ev) => {
-              if (ev.key === 'Enter') {
+              if (ev.key === "Enter") {
                 handleChangeTitle();
               }
             }}
-            label='Name'
-            variant='standard'
+            label="Name"
+            variant="standard"
           />
         </TitlePanel>
         <Box
           sx={{
-            borderRadius: '4px',
+            borderRadius: "4px",
             height: 350,
             width: 590,
-            overflowY: 'scroll',
-            border: '1px solid grey',
+            overflowY: "scroll",
+            border: "1px solid grey",
           }}
         >
           <DragDropContext onDragEnd={handleDrop}>
-            <Droppable droppableId='list-container'>
+            <Droppable droppableId="list-container">
               {(provided) => (
                 <div {...provided.droppableProps} ref={provided.innerRef}>
                   {tempListData.map((tempData, index) => {
@@ -357,43 +357,43 @@ export default function App() {
                             >
                               <div
                                 style={{
-                                  display: 'flex',
-                                  flexDirection: 'row',
+                                  display: "flex",
+                                  flexDirection: "row",
                                 }}
                               >
                                 <div
                                   style={{
-                                    background: '#f9fafb',
-                                    width: '35px',
+                                    background: "#f9fafb",
+                                    width: "35px",
                                   }}
                                 >
                                   <DragIndicator
                                     style={{
-                                      marginLeft: '5px',
-                                      marginTop: '15px',
-                                      background: '#f9fafb',
-                                      color: '#89888e',
+                                      marginLeft: "5px",
+                                      marginTop: "15px",
+                                      background: "#f9fafb",
+                                      color: "#89888e",
                                     }}
                                   />
                                 </div>
                                 <Typography
                                   style={{
-                                    padding: '15px 8px 0px 5px',
-                                    width: '20px',
+                                    padding: "15px 8px 0px 5px",
+                                    width: "20px",
                                   }}
                                 >
                                   {index + 1}.
                                 </Typography>
                                 <TextField
-                                  margin='dense'
-                                  id='name'
+                                  margin="dense"
+                                  id="name"
                                   multiline
-                                  size='small'
-                                  variant='outlined'
+                                  size="small"
+                                  variant="outlined"
                                   value={tempData}
                                   style={{
-                                    width: '450px',
-                                    background: '#f9fafb',
+                                    width: "450px",
+                                    background: "#f9fafb",
                                   }}
                                   onChange={(e) =>
                                     handleChangeItemData(e, index)
@@ -416,7 +416,7 @@ export default function App() {
                                   onClick={() => handleClickRemove(index)}
                                 >
                                   <DeleteOutlineOutlined
-                                    style={{ color: '#eb6363' }}
+                                    style={{ color: "#eb6363" }}
                                   />
                                 </IconButton>
                                 <IconButton
@@ -438,22 +438,22 @@ export default function App() {
         </Box>
         <ActionButtonGroup>
           <Button
-            variant='contained'
+            variant="contained"
             onClick={handleClickDiscard}
             style={{
-              marginRight: '10px',
-              color: '#5f2ee5',
-              background: 'white',
+              marginRight: "10px",
+              color: "#5f2ee5",
+              background: "white",
             }}
           >
             Discard
           </Button>
           <Button
-            variant='contained'
+            variant="contained"
             onClick={handleClickSave}
-            style={{ background: '#5f2ee5' }}
+            style={{ background: "#5f2ee5" }}
           >
-            {isSaveClicked ? <CheckCircleOutline /> : 'Save'}
+            {isSaveClicked ? <CheckCircleOutline /> : "Save"}
           </Button>
         </ActionButtonGroup>
       </Box>
