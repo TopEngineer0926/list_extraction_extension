@@ -7,19 +7,25 @@ chrome.runtime.onInstalled.addListener(() => {
 
 const DEFAULT_WIDTH = 660;
 const DEFAULT_HEIGHT = 630;
+const DEFAULT_TOP = 200;
+const DEFAULT_LEFT = 400;
 
 chrome.action.onClicked.addListener(createPanel);
 function createPanel(tab) {
   currentTab = tab;
   if (!tab) return;
   try {
-    chrome.windows.create({
-      url: chrome.runtime.getURL("index.html"),
-      type: "popup",
-      top: 200,
-      left: 400,
-      height: DEFAULT_HEIGHT,
-      width: DEFAULT_WIDTH,
+    chrome.windows.getAll({ windowTypes: ["popup"] }, function (windows) {
+      if (windows.length === 0) {
+        chrome.windows.create({
+          url: chrome.runtime.getURL("index.html"),
+          type: "popup",
+          top: DEFAULT_TOP,
+          left: DEFAULT_LEFT,
+          height: DEFAULT_HEIGHT,
+          width: DEFAULT_WIDTH,
+        });
+      }
     });
   } catch (error) {
     console.log(error);
