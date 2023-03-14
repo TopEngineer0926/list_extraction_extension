@@ -139,7 +139,13 @@ const Home = () => {
       type: "string",
       mainType: category,
       filter: {
-        list: listData,
+        list: listData.map((data) => {
+          return {
+            name: data,
+            enabled: true,
+            include: true,
+          };
+        }),
         include: true,
         mix: false,
       },
