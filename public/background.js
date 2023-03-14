@@ -6,7 +6,7 @@ chrome.runtime.onInstalled.addListener(() => {
 });
 
 const DEFAULT_WIDTH = 660;
-const DEFAULT_HEIGHT = 630;
+const DEFAULT_HEIGHT = 730;
 const DEFAULT_TOP = 200;
 const DEFAULT_LEFT = 400;
 

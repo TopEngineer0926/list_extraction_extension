@@ -396,7 +396,7 @@ const Home = () => {
           loading={isLoading ? isLoading : undefined}
           style={{ marginTop: "226px" }}
         >
-          <CircularIndeterminate />
+          <CircularIndeterminate color={"#5f2ee5"} width={40} height={40} />
           <Typography variant="">Extracting {category} List...</Typography>
         </LoadingPanel>
       </div>
@@ -406,16 +406,16 @@ const Home = () => {
       <Box
         sx={{
           width: "100%",
-          height: 400,
           maxWidth: 600,
           bgColor: "background.paper",
           margin: "20px",
           gap: "20px",
           display: "grid",
+          justifyContent: "center",
         }}
       >
         {loggedIn ? (
-          <div style={{ margin: 10, gap: 5, display: "grid" }}>
+          <div style={{ margin: 10, gap: 5, display: "grid", marginRight: 0 }}>
             <div style={{ textAlign: "right", fontSize: 14, color: "grey" }}>
               You are logged in to Moonhub Search as:
             </div>
@@ -424,7 +424,7 @@ const Home = () => {
             </div>
           </div>
         ) : (
-          <div style={{ margin: 10, gap: 5, display: "grid" }}>
+          <div style={{ margin: 10, gap: 5, display: "grid", marginRight: 0 }}>
             <Link
               style={{ textAlign: "right", fontSize: 14, color: "grey" }}
               to="/login"
@@ -472,7 +472,7 @@ const Home = () => {
         <Box
           sx={{
             borderRadius: "4px",
-            height: 350,
+            height: 390,
             width: 590,
             overflowY: "scroll",
             border: "1px solid grey",

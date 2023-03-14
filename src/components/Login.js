@@ -10,6 +10,7 @@ import FormControl from "@mui/material/FormControl";
 import axios from "axios";
 import { addAuthorizationUserInfo, addLoggedIn } from "../utils";
 import { useNavigate } from "react-router-dom";
+import CircularIndeterminate from "./CircularIndeterminate";
 
 const ActionButton = styled("div")({
   width: "100%",
@@ -25,6 +26,8 @@ const Login = () => {
     password: "",
   });
   const [showPassword, setShowPassword] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
+
   const navigate = useNavigate();
 
   const handleClickShowPassword = () => setShowPassword((show) => !show);
@@ -40,6 +43,8 @@ const Login = () => {
     });
   };
   const handleClickLogin = () => {
+    setIsLoading(true);
+
     let data = {
       email: form.email,
       password: form.password,
@@ -64,6 +69,7 @@ const Login = () => {
         addLoggedIn(true);
       })
       .finally(() => {
+        setIsLoading(false);
         navigate("/home");
       });
   };
@@ -115,6 +121,11 @@ const Login = () => {
         variant="contained"
         onClick={handleClickLogin}
         style={{ background: "#5f2ee5", textTransform: "none" }}
+        endIcon={
+          isLoading ? (
+            <CircularIndeterminate color="white" width={30} height={30} />
+          ) : null
+        }
       >
         Login
       </Button>
