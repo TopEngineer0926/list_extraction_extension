@@ -11,14 +11,18 @@ import axios from "axios";
 import { addAuthorizationUserInfo, addLoggedIn } from "../utils";
 import { useNavigate } from "react-router-dom";
 import CircularIndeterminate from "./CircularIndeterminate";
-
-const ActionButton = styled("div")({
-  width: "100%",
-  display: "flex",
-  flexDirection: "column",
-});
+import { ToastContainer, toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
 const API_ENDPOINT = "http://35.238.228.19:8080";
+
+const validateEmail = (email) => {
+  return String(email)
+    .toLowerCase()
+    .match(
+      /^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/
+    );
+};
 
 const Login = () => {
   const [form, setForm] = useState({
@@ -27,6 +31,7 @@ const Login = () => {
   });
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
+  const [errorFlag, setErrorFlag] = useState(false);
 
   const navigate = useNavigate();
 
@@ -37,12 +42,28 @@ const Login = () => {
   };
 
   const handleChangeForm = (e, type) => {
+    setErrorFlag(true);
     setForm({
       ...form,
       [type]: e.target.value,
     });
   };
   const handleClickLogin = () => {
+    if (form.email.length === 0) {
+      toast.warn("Email is required !");
+      return;
+    }
+
+    if (form.password.length === 0) {
+      toast.warn("password is required !");
+      return;
+    }
+
+    if (!validateEmail(form.email)) {
+      toast.warn("Email is invalid !");
+      return;
+    }
+
     setIsLoading(true);
 
     let data = {
@@ -67,10 +88,14 @@ const Login = () => {
 
         addAuthorizationUserInfo(JSON.stringify(user_info));
         addLoggedIn(true);
+        toast.success("Login Success !");
+      })
+      .catch((e) => {
+        toast.error("Login Failed !");
       })
       .finally(() => {
         setIsLoading(false);
-        navigate("/home");
+        setTimeout(() => navigate("/home"), 3000);
       });
   };
 
@@ -91,6 +116,9 @@ const Login = () => {
           placeholder="email@example.com"
           value={form.email}
           onChange={(e) => handleChangeForm(e, "email")}
+          error={
+            errorFlag && (form.email.length === 0 || !validateEmail(form.email))
+          }
         />
       </div>
       <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
@@ -114,6 +142,7 @@ const Login = () => {
             }
             value={form.password}
             onChange={(e) => handleChangeForm(e, "password")}
+            error={errorFlag && form.password.length === 0}
           />
         </FormControl>
       </div>
@@ -136,6 +165,7 @@ const Login = () => {
       >
         Back to Home
       </Button>
+      <ToastContainer position="bottom-right" autoClose={3000} />
     </div>
   );
 };
