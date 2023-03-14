@@ -1,11 +1,30 @@
 import Login from "./components/Login";
 import Home from "./components/Home";
-import { createBrowserRouter, RouterProvider } from "react-router-dom";
+import {
+  createBrowserRouter,
+  createMemoryRouter,
+  Outlet,
+  RouterProvider,
+} from "react-router-dom";
+
+const CustomLayout = () => {
+  return (
+    <div>
+      <Outlet />
+    </div>
+  );
+};
 
 const App = () => {
-  const router = createBrowserRouter([
+  const router = createMemoryRouter([
     {
+      path: "/",
+      element: <CustomLayout />,
       children: [
+        {
+          path: "",
+          element: <Login />,
+        },
         {
           path: "login",
           element: <Login />,

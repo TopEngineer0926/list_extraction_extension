@@ -29,12 +29,14 @@ import {
   getUserInfo,
   removeAuthorizationUserInfo,
 } from "../../utils";
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 
 // const API_ENDPOINT = 'https://moonhub-list-backend.herokuapp.com/api';
 const API_ENDPOINT = "https://moonhub-list-backend-develop.herokuapp.com/api";
 
 // const API_ENDPOINT = 'http://192.168.105.55:8000/api';
+
+const MOONHUB_SEARCH_ENDPOINT = "http://35.238.228.19:8080";
 
 const ServerError = () => {
   return (
@@ -72,7 +74,7 @@ const Home = () => {
     auth_token: "",
   });
 
-  // let port = chrome.runtime.connect({ name: "init_list_extraction" });
+  let port = chrome.runtime.connect({ name: "init_list_extraction" });
 
   useEffect(() => {
     setTempListData(listData);
@@ -82,20 +84,21 @@ const Home = () => {
     if (category.trim() === "") {
       setInvalidRequired(true);
     } else {
-      // port.postMessage({ type: "get-user-data" });
-      // port.onMessage.addListener(function (msg) {
-      //   setCapturedText(msg.result);
-      //   setUrl(msg.url);
-      // });
+      port.postMessage({ type: "get-user-data" });
+      port.onMessage.addListener(function (msg) {
+        setCapturedText(msg.result);
+        setUrl(msg.url);
+      });
+      // setCapturedText("Google, Apple, AWS, Facebook");
     }
   };
 
   const getCapturedText = () => {
-    // port.postMessage({ type: "get-user-data" });
-    // port.onMessage.addListener(function (msg) {
-    //   setCapturedTextForItems(msg.result);
-    //   setUrl(msg.url);
-    // });
+    port.postMessage({ type: "get-user-data" });
+    port.onMessage.addListener(function (msg) {
+      setCapturedTextForItems(msg.result);
+      setUrl(msg.url);
+    });
   };
 
   const handleClickDiscard = () => {
@@ -104,11 +107,10 @@ const Home = () => {
 
   const handleClickSave = () => {
     setIsLoading(true);
-    setCategory("");
     setListData(tempListData);
 
     let data = {
-      return_data: listData,
+      return_data: tempListData,
       title: title,
     };
 
@@ -126,6 +128,32 @@ const Home = () => {
       })
       .finally(() => {
         setIsLoading(false);
+      });
+  };
+
+  const handleClickImport = () => {
+    let user = JSON.parse(getUserInfo());
+    let data = {
+      user_id: user.user_id,
+      name: title,
+      type: "string",
+      mainType: category,
+      filter: {
+        list: listData,
+        include: true,
+        mix: false,
+      },
+    };
+
+    axios
+      .post(`${MOONHUB_SEARCH_ENDPOINT}/lists/`, data, {
+        headers: {
+          "Content-Type": "application/json",
+          accept: "application/json",
+        },
+      })
+      .then((res) => {
+        console.log("=========", res);
       });
   };
 
@@ -282,7 +310,7 @@ const Home = () => {
           <div style={{ textAlign: "center", fontSize: 20 }}>
             You are logged in to Moonhub Search as:
           </div>
-          <div style={{ textAlign: "center", fontSize: 20 }}>
+          <div style={{ textAlign: "center", fontSize: 20, color: "#5f2ee5" }}>
             {userInfo.user_email}
           </div>
           <div
@@ -386,6 +414,25 @@ const Home = () => {
           display: "grid",
         }}
       >
+        {loggedIn ? (
+          <div style={{ margin: 10, gap: 5, display: "grid" }}>
+            <div style={{ textAlign: "right", fontSize: 14, color: "grey" }}>
+              You are logged in to Moonhub Search as:
+            </div>
+            <div style={{ textAlign: "right", fontSize: 14, color: "grey" }}>
+              {userInfo.user_email}
+            </div>
+          </div>
+        ) : (
+          <div style={{ margin: 10, gap: 5, display: "grid" }}>
+            <Link
+              style={{ textAlign: "right", fontSize: 14, color: "grey" }}
+              to="/login"
+            >
+              Login to Moonhub Search
+            </Link>
+          </div>
+        )}
         <ActionButtonGroup>
           <Button
             variant="contained"
@@ -535,7 +582,6 @@ const Home = () => {
             variant="contained"
             onClick={handleClickDiscard}
             style={{
-              marginRight: "10px",
               color: "#5f2ee5",
               background: "white",
               textTransform: "none",
@@ -550,6 +596,15 @@ const Home = () => {
           >
             {isSaveClicked ? <CheckCircleOutline /> : "Save"}
           </Button>
+          {loggedIn && (
+            <Button
+              variant="contained"
+              onClick={handleClickImport}
+              style={{ background: "#5f2ee5", textTransform: "none" }}
+            >
+              Import to Search
+            </Button>
+          )}
         </ActionButtonGroup>
       </Box>
     </Router>

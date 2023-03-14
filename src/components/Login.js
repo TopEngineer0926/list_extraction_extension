@@ -45,44 +45,27 @@ const Login = () => {
       password: form.password,
     };
 
-    // axios
-    //   .post(`${API_ENDPOINT}/login`, data, {
-    //     headers: {
-    //       "Content-Type": "application/json",
-    //       accept: "application/json",
-    //     },
-    //   })
-    //   .then((res) => {
-    //     console.log("=====", res.data);
-    //     let user_info = {
-    //       user_id: res.data.user_id,
-    //       user_email: res.data.user_email,
-    //       auth_token: res.data.token,
-    //     };
+    axios
+      .post(`${API_ENDPOINT}/login`, data, {
+        headers: {
+          "Content-Type": "application/json",
+          accept: "application/json",
+        },
+      })
+      .then((res) => {
+        let data = res.data;
+        let user_info = {
+          user_id: data.data.user_id,
+          user_email: data.data.user_email,
+          auth_token: data.data.token,
+        };
 
-    //     addAuthorizationUserInfo(JSON.stringify(user_info));
-    //     addLoggedIn(true);
-    //   })
-    //   .finally(() => {
-    //     let user_info = {
-    //       user_id: "123",
-    //       user_email: "test@moonhub.ai",
-    //       auth_token: "123123123",
-    //     };
-
-    //     addAuthorizationUserInfo(JSON.stringify(user_info));
-    //     addLoggedIn(true);
-    //     navigate("/home");
-    //   });
-    let user_info = {
-      user_id: "123",
-      user_email: "test@moonhub.ai",
-      auth_token: "123123123",
-    };
-
-    addAuthorizationUserInfo(JSON.stringify(user_info));
-    addLoggedIn(true);
-    navigate("/home");
+        addAuthorizationUserInfo(JSON.stringify(user_info));
+        addLoggedIn(true);
+      })
+      .finally(() => {
+        navigate("/home");
+      });
   };
 
   const handleClickBackToHome = () => {
