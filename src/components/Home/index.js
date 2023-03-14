@@ -465,8 +465,16 @@ const Home = () => {
                 handleChangeTitle();
               }
             }}
-            label="Name"
-            variant="standard"
+            style={{ background: "#f9fafb", color: "#89888e" }}
+            sx={{
+              "& .MuiInputBase-root": {
+                "& .MuiOutlinedInput-input": {
+                  padding: "10px 14px",
+                },
+              },
+            }}
+            placeholder="Name"
+            variant="outlined"
           />
         </TitlePanel>
         <Box

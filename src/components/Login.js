@@ -109,7 +109,7 @@ const Login = () => {
         Log in to your Moonhub Search account
       </div>
       <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
-        Email:
+        Email
         <TextField
           id="outlined-basic"
           variant="outlined"
