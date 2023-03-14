@@ -1,0 +1,149 @@
+import { useState } from "react";
+import { Button, TextField } from "@mui/material";
+import { styled } from "@mui/system";
+import Visibility from "@mui/icons-material/Visibility";
+import VisibilityOff from "@mui/icons-material/VisibilityOff";
+import IconButton from "@mui/material/IconButton";
+import OutlinedInput from "@mui/material/OutlinedInput";
+import InputAdornment from "@mui/material/InputAdornment";
+import FormControl from "@mui/material/FormControl";
+import axios from "axios";
+import { addAuthorizationUserInfo, addLoggedIn } from "../utils";
+import { useNavigate } from "react-router-dom";
+
+const ActionButton = styled("div")({
+  width: "100%",
+  display: "flex",
+  flexDirection: "column",
+});
+
+const API_ENDPOINT = "http://35.238.228.19:8080";
+
+const Login = () => {
+  const [form, setForm] = useState({
+    email: "",
+    password: "",
+  });
+  const [showPassword, setShowPassword] = useState(false);
+  const navigate = useNavigate();
+
+  const handleClickShowPassword = () => setShowPassword((show) => !show);
+
+  const handleMouseDownPassword = (event) => {
+    event.preventDefault();
+  };
+
+  const handleChangeForm = (e, type) => {
+    setForm({
+      ...form,
+      [type]: e.target.value,
+    });
+  };
+  const handleClickLogin = () => {
+    let data = {
+      email: form.email,
+      password: form.password,
+    };
+
+    // axios
+    //   .post(`${API_ENDPOINT}/login`, data, {
+    //     headers: {
+    //       "Content-Type": "application/json",
+    //       accept: "application/json",
+    //     },
+    //   })
+    //   .then((res) => {
+    //     console.log("=====", res.data);
+    //     let user_info = {
+    //       user_id: res.data.user_id,
+    //       user_email: res.data.user_email,
+    //       auth_token: res.data.token,
+    //     };
+
+    //     addAuthorizationUserInfo(JSON.stringify(user_info));
+    //     addLoggedIn(true);
+    //   })
+    //   .finally(() => {
+    //     let user_info = {
+    //       user_id: "123",
+    //       user_email: "test@moonhub.ai",
+    //       auth_token: "123123123",
+    //     };
+
+    //     addAuthorizationUserInfo(JSON.stringify(user_info));
+    //     addLoggedIn(true);
+    //     navigate("/home");
+    //   });
+    let user_info = {
+      user_id: "123",
+      user_email: "test@moonhub.ai",
+      auth_token: "123123123",
+    };
+
+    addAuthorizationUserInfo(JSON.stringify(user_info));
+    addLoggedIn(true);
+    navigate("/home");
+  };
+
+  const handleClickBackToHome = () => {
+    navigate("/home");
+  };
+
+  return (
+    <div style={{ margin: 25, gap: 20, display: "grid" }}>
+      <div style={{ textAlign: "center", fontSize: 20 }}>
+        Log in to your Moonhub Search account
+      </div>
+      <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
+        Email:
+        <TextField
+          id="outlined-basic"
+          variant="outlined"
+          placeholder="email@example.com"
+          value={form.email}
+          onChange={(e) => handleChangeForm(e, "email")}
+        />
+      </div>
+      <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
+        Input Password
+        <FormControl variant="outlined">
+          <OutlinedInput
+            id="outlined-adornment-password"
+            type={showPassword ? "text" : "password"}
+            placeholder="Enter password"
+            endAdornment={
+              <InputAdornment position="end">
+                <IconButton
+                  aria-label="toggle password visibility"
+                  onClick={handleClickShowPassword}
+                  onMouseDown={handleMouseDownPassword}
+                  edge="end"
+                >
+                  {showPassword ? <VisibilityOff /> : <Visibility />}
+                </IconButton>
+              </InputAdornment>
+            }
+            value={form.password}
+            onChange={(e) => handleChangeForm(e, "password")}
+          />
+        </FormControl>
+      </div>
+      <Button
+        variant="contained"
+        onClick={handleClickLogin}
+        style={{ background: "#5f2ee5", textTransform: "none" }}
+      >
+        Login
+      </Button>
+      <Button
+        variant="outlined"
+        style={{ color: "grey", borderColor: "#e8e8e8", textTransform: "none" }}
+        onClick={handleClickBackToHome}
+      >
+        Back to Home
+      </Button>
+    </div>
+  );
+};
+
+export default Login;
