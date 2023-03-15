@@ -664,7 +664,11 @@ const Home = () => {
                 <Button
                   variant="contained"
                   onClick={() => handleClickImport("importBtn")}
-                  style={{ background: "#5f2ee5", textTransform: "none" }}
+                  style={{
+                    background:
+                      listData.length === 0 ? "rgba(0, 0, 0, 0.12)" : "#5f2ee5",
+                    textTransform: "none",
+                  }}
                   endIcon={
                     btnLoading.importBtn ? (
                       <CircularIndeterminate
@@ -674,11 +678,17 @@ const Home = () => {
                       />
                     ) : null
                   }
+                  disabled={listData.length === 0}
                 >
                   Import to Search
                 </Button>
               )}
             </ActionButtonGroup>
+            {loggedIn && listData.length === 0 && (
+              <div style={{ textAlign: "right", color: "red", marginTop: -10 }}>
+                You must save the list before importing
+              </div>
+            )}
           </Box>
         </Router>
       )}
