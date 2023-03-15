@@ -30,6 +30,7 @@ import {
   removeAuthorizationUserInfo,
 } from "../../utils";
 import { Link, useNavigate } from "react-router-dom";
+import { ToastContainer, toast } from "react-toastify";
 
 // const API_ENDPOINT = 'https://moonhub-list-backend.herokuapp.com/api';
 const API_ENDPOINT = "https://moonhub-list-backend-develop.herokuapp.com/api";
@@ -159,7 +160,11 @@ const Home = () => {
         },
       })
       .then((res) => {
-        console.log("=========", res);
+        toast.success("List imported to search successfully");
+      })
+      .catch((e) => {
+        const message = e?.response?.data?.detail;
+        toast.error(message ? message : "List imported to search failed");
       });
   };
 
@@ -309,319 +314,334 @@ const Home = () => {
     }
   }, []);
 
-  return capturedText.length === 0 || isLoading ? (
-    <Router>
-      {loggedIn ? (
-        <div style={{ margin: 25, gap: 20, display: "grid" }}>
-          <div style={{ textAlign: "center", fontSize: 20 }}>
-            You are logged in to Moonhub Search as:
-          </div>
-          <div style={{ textAlign: "center", fontSize: 20, color: "#5f2ee5" }}>
-            {userInfo.user_email}
-          </div>
-          <div
-            style={{
-              display: "flex",
-              flexDirection: "column",
-              gap: 10,
-              alignItems: "center",
-            }}
-          >
-            <Button
-              variant="outlined"
-              style={{
-                width: "20%",
-                color: "grey",
-                borderColor: "#e8e8e8",
-                textTransform: "none",
-              }}
-              onClick={handleClickSignOut}
-            >
-              Sign out
-            </Button>
-          </div>
-        </div>
-      ) : (
-        <div style={{ margin: 25, gap: 20, display: "grid" }}>
-          <div style={{ textAlign: "center", fontSize: 20 }}>
-            Login to Moonhub Search first to import lists directly!
-          </div>
-          <div
-            style={{
-              display: "flex",
-              flexDirection: "column",
-              gap: 10,
-              alignItems: "center",
-            }}
-          >
-            <Button
+  return (
+    <>
+      {capturedText.length === 0 || isLoading ? (
+        <Router>
+          {loggedIn ? (
+            <div style={{ margin: 25, gap: 20, display: "grid" }}>
+              <div style={{ textAlign: "center", fontSize: 20 }}>
+                You are logged in to Moonhub Search as:
+              </div>
+              <div
+                style={{ textAlign: "center", fontSize: 20, color: "#5f2ee5" }}
+              >
+                {userInfo.user_email}
+              </div>
+              <div
+                style={{
+                  display: "flex",
+                  flexDirection: "column",
+                  gap: 10,
+                  alignItems: "center",
+                }}
+              >
+                <Button
+                  variant="outlined"
+                  style={{
+                    width: "20%",
+                    color: "grey",
+                    borderColor: "#e8e8e8",
+                    textTransform: "none",
+                  }}
+                  onClick={handleClickSignOut}
+                >
+                  Sign out
+                </Button>
+              </div>
+            </div>
+          ) : (
+            <div style={{ margin: 25, gap: 20, display: "grid" }}>
+              <div style={{ textAlign: "center", fontSize: 20 }}>
+                Login to Moonhub Search first to import lists directly!
+              </div>
+              <div
+                style={{
+                  display: "flex",
+                  flexDirection: "column",
+                  gap: 10,
+                  alignItems: "center",
+                }}
+              >
+                <Button
+                  variant="contained"
+                  style={{
+                    background: "#5f2ee5",
+                    width: "50%",
+                    textTransform: "none",
+                  }}
+                  onClick={handleClickSignIn}
+                >
+                  Login to Moonhub Search
+                </Button>
+              </div>
+            </div>
+          )}
+          <div>
+            <div style={{ display: isLoading ? "none" : "block" }}>
+              <Card
+                setCategory={setCategory}
+                handleClickGetText={handleClickGetText}
+                setInvalidRequired={setInvalidRequired}
+              />
+              <FormLabel
+                color="error"
+                error={true}
+                style={{
+                  display: invalidRequired ? "block" : "none",
+                  marginLeft: "38px",
+                }}
+              >
+                Please type what you want to extract...
+              </FormLabel>
+            </div>
+            <TextCaptureButton
               variant="contained"
+              onClick={handleClickGetText}
               style={{
                 background: "#5f2ee5",
-                width: "50%",
-                textTransform: "none",
+                width: "32%",
+                margin: "auto",
+                marginTop: "20px",
               }}
-              onClick={handleClickSignIn}
             >
-              Login to Moonhub Search
-            </Button>
-          </div>
-        </div>
-      )}
-      <div>
-        <div style={{ display: isLoading ? "none" : "block" }}>
-          <Card
-            setCategory={setCategory}
-            handleClickGetText={handleClickGetText}
-            setInvalidRequired={setInvalidRequired}
-          />
-          <FormLabel
-            color="error"
-            error={true}
-            style={{
-              display: invalidRequired ? "block" : "none",
-              marginLeft: "38px",
-            }}
-          >
-            Please type what you want to extract...
-          </FormLabel>
-        </div>
-        <TextCaptureButton
-          variant="contained"
-          onClick={handleClickGetText}
-          style={{
-            background: "#5f2ee5",
-            width: "32%",
-            margin: "auto",
-            marginTop: "20px",
-          }}
-        >
-          Extract List
-        </TextCaptureButton>
-        <LoadingPanel
-          loading={isLoading ? isLoading : undefined}
-          style={{ marginTop: "226px" }}
-        >
-          <CircularIndeterminate color={"#5f2ee5"} width={40} height={40} />
-          <Typography variant="">Extracting {category} List...</Typography>
-        </LoadingPanel>
-      </div>
-    </Router>
-  ) : (
-    <Router>
-      <Box
-        sx={{
-          width: "100%",
-          maxWidth: 600,
-          bgColor: "background.paper",
-          margin: "20px",
-          gap: "20px",
-          display: "grid",
-          justifyContent: "center",
-        }}
-      >
-        {loggedIn ? (
-          <div style={{ margin: 10, gap: 5, display: "grid", marginRight: 0 }}>
-            <div style={{ textAlign: "right", fontSize: 14, color: "grey" }}>
-              You are logged in to Moonhub Search as:
-            </div>
-            <div style={{ textAlign: "right", fontSize: 14, color: "grey" }}>
-              {userInfo.user_email}
-            </div>
-          </div>
-        ) : (
-          <div style={{ margin: 10, gap: 5, display: "grid", marginRight: 0 }}>
-            <Link
-              style={{ textAlign: "right", fontSize: 14, color: "grey" }}
-              to="/login"
+              Extract List
+            </TextCaptureButton>
+            <LoadingPanel
+              loading={isLoading ? isLoading : undefined}
+              style={{ marginTop: "226px" }}
             >
-              Login to Moonhub Search
-            </Link>
+              <CircularIndeterminate color={"#5f2ee5"} width={40} height={40} />
+              <Typography variant="">Extracting {category} List...</Typography>
+            </LoadingPanel>
           </div>
-        )}
-        <ActionButtonGroup>
-          <Button
-            variant="contained"
-            onClick={handleClickStartOver}
-            style={{
-              marginRight: "10px",
-              color: "#5f2ee5",
-              background: "white",
-              textTransform: "none",
-            }}
-          >
-            Start Over
-          </Button>
-          <Button
-            variant="contained"
-            onClick={handleClickAddItems}
-            style={{ background: "#5f2ee5", textTransform: "none" }}
-          >
-            Add Items
-          </Button>
-        </ActionButtonGroup>
-        <TitlePanel>
-          <TextField
-            required
-            id="outlined-required"
-            value={title}
-            onChange={handleChangeTitle}
-            onKeyPress={(ev) => {
-              if (ev.key === "Enter") {
-                handleChangeTitle();
-              }
-            }}
-            style={{ background: "#f9fafb", color: "#89888e" }}
+        </Router>
+      ) : (
+        <Router>
+          <Box
             sx={{
-              "& .MuiInputBase-root": {
-                "& .MuiOutlinedInput-input": {
-                  padding: "10px 14px",
-                },
-              },
+              width: "100%",
+              maxWidth: 600,
+              bgColor: "background.paper",
+              margin: "20px",
+              gap: "20px",
+              display: "grid",
+              justifyContent: "center",
             }}
-            placeholder="Name"
-            variant="outlined"
-          />
-        </TitlePanel>
-        <Box
-          sx={{
-            borderRadius: "4px",
-            height: 390,
-            width: 590,
-            overflowY: "scroll",
-            border: "1px solid grey",
-          }}
-        >
-          <DragDropContext onDragEnd={handleDrop}>
-            <Droppable droppableId="list-container">
-              {(provided) => (
-                <div {...provided.droppableProps} ref={provided.innerRef}>
-                  {tempListData.map((tempData, index) => {
-                    return (
-                      <>
-                        <Draggable
-                          key={tempData}
-                          draggableId={tempData}
-                          index={index}
-                        >
-                          {(provided) => (
-                            <div
-                              ref={provided.innerRef}
-                              {...provided.dragHandleProps}
-                              {...provided.draggableProps}
-                            >
-                              <div
-                                style={{
-                                  display: "flex",
-                                  flexDirection: "row",
-                                }}
-                              >
-                                <div
-                                  style={{
-                                    background: "#f9fafb",
-                                    width: "35px",
-                                  }}
-                                >
-                                  <DragIndicator
-                                    style={{
-                                      marginLeft: "5px",
-                                      marginTop: "15px",
-                                      background: "#f9fafb",
-                                      color: "#89888e",
-                                    }}
-                                  />
-                                </div>
-                                <Typography
-                                  style={{
-                                    padding: "15px 8px 0px 5px",
-                                    width: "20px",
-                                  }}
-                                >
-                                  {index + 1}.
-                                </Typography>
-                                <TextField
-                                  margin="dense"
-                                  id="name"
-                                  multiline
-                                  size="small"
-                                  variant="outlined"
-                                  value={tempData}
-                                  style={{
-                                    width: "450px",
-                                    background: "#f9fafb",
-                                  }}
-                                  onChange={(e) =>
-                                    handleChangeItemData(e, index)
-                                  }
-                                  inputRef={(input) => {
-                                    if (activeInput === index)
-                                      input && input.focus();
-                                  }}
-                                  onFocus={(e) => {
-                                    if (activeInput === index) {
-                                      e.currentTarget.setSelectionRange(
-                                        e.currentTarget.value.length,
-                                        e.currentTarget.value.length
-                                      );
-                                      setActiveInput(null);
-                                    }
-                                  }}
-                                />
-                                <IconButton
-                                  onClick={() => handleClickRemove(index)}
-                                >
-                                  <DeleteOutlineOutlined
-                                    style={{ color: "#eb6363" }}
-                                  />
-                                </IconButton>
-                                <IconButton
-                                  onClick={() => handleClickAdd(index)}
-                                >
-                                  <Add />
-                                </IconButton>
-                              </div>
-                            </div>
-                          )}
-                        </Draggable>
-                      </>
-                    );
-                  })}
+          >
+            {loggedIn ? (
+              <div
+                style={{ margin: 10, gap: 5, display: "grid", marginRight: 0 }}
+              >
+                <div
+                  style={{ textAlign: "right", fontSize: 14, color: "grey" }}
+                >
+                  You are logged in to Moonhub Search as:
                 </div>
-              )}
-            </Droppable>
-          </DragDropContext>
-        </Box>
-        <ActionButtonGroup>
-          <Button
-            variant="contained"
-            onClick={handleClickDiscard}
-            style={{
-              color: "#5f2ee5",
-              background: "white",
-              textTransform: "none",
-            }}
-          >
-            Discard
-          </Button>
-          <Button
-            variant="contained"
-            onClick={handleClickSave}
-            style={{ background: "#5f2ee5", textTransform: "none" }}
-          >
-            {isSaveClicked ? <CheckCircleOutline /> : "Save"}
-          </Button>
-          {loggedIn && (
-            <Button
-              variant="contained"
-              onClick={handleClickImport}
-              style={{ background: "#5f2ee5", textTransform: "none" }}
+                <div
+                  style={{ textAlign: "right", fontSize: 14, color: "grey" }}
+                >
+                  {userInfo.user_email}
+                </div>
+              </div>
+            ) : (
+              <div
+                style={{ margin: 10, gap: 5, display: "grid", marginRight: 0 }}
+              >
+                <Link
+                  style={{ textAlign: "right", fontSize: 14, color: "grey" }}
+                  to="/login"
+                >
+                  Login to Moonhub Search
+                </Link>
+              </div>
+            )}
+            <ActionButtonGroup>
+              <Button
+                variant="contained"
+                onClick={handleClickStartOver}
+                style={{
+                  marginRight: "10px",
+                  color: "#5f2ee5",
+                  background: "white",
+                  textTransform: "none",
+                }}
+              >
+                Start Over
+              </Button>
+              <Button
+                variant="contained"
+                onClick={handleClickAddItems}
+                style={{ background: "#5f2ee5", textTransform: "none" }}
+              >
+                Add Items
+              </Button>
+            </ActionButtonGroup>
+            <TitlePanel>
+              <TextField
+                required
+                id="outlined-required"
+                value={title}
+                onChange={handleChangeTitle}
+                onKeyPress={(ev) => {
+                  if (ev.key === "Enter") {
+                    handleChangeTitle();
+                  }
+                }}
+                style={{ background: "#f9fafb", color: "#89888e" }}
+                sx={{
+                  "& .MuiInputBase-root": {
+                    "& .MuiOutlinedInput-input": {
+                      padding: "10px 14px",
+                    },
+                  },
+                }}
+                placeholder="Name"
+                variant="outlined"
+              />
+            </TitlePanel>
+            <Box
+              sx={{
+                borderRadius: "4px",
+                height: 390,
+                width: 590,
+                overflowY: "scroll",
+                border: "1px solid grey",
+              }}
             >
-              Import to Search
-            </Button>
-          )}
-        </ActionButtonGroup>
-      </Box>
-    </Router>
+              <DragDropContext onDragEnd={handleDrop}>
+                <Droppable droppableId="list-container">
+                  {(provided) => (
+                    <div {...provided.droppableProps} ref={provided.innerRef}>
+                      {tempListData.map((tempData, index) => {
+                        return (
+                          <>
+                            <Draggable
+                              key={tempData}
+                              draggableId={tempData}
+                              index={index}
+                            >
+                              {(provided) => (
+                                <div
+                                  ref={provided.innerRef}
+                                  {...provided.dragHandleProps}
+                                  {...provided.draggableProps}
+                                >
+                                  <div
+                                    style={{
+                                      display: "flex",
+                                      flexDirection: "row",
+                                    }}
+                                  >
+                                    <div
+                                      style={{
+                                        background: "#f9fafb",
+                                        width: "35px",
+                                      }}
+                                    >
+                                      <DragIndicator
+                                        style={{
+                                          marginLeft: "5px",
+                                          marginTop: "15px",
+                                          background: "#f9fafb",
+                                          color: "#89888e",
+                                        }}
+                                      />
+                                    </div>
+                                    <Typography
+                                      style={{
+                                        padding: "15px 8px 0px 5px",
+                                        width: "20px",
+                                      }}
+                                    >
+                                      {index + 1}.
+                                    </Typography>
+                                    <TextField
+                                      margin="dense"
+                                      id="name"
+                                      multiline
+                                      size="small"
+                                      variant="outlined"
+                                      value={tempData}
+                                      style={{
+                                        width: "450px",
+                                        background: "#f9fafb",
+                                      }}
+                                      onChange={(e) =>
+                                        handleChangeItemData(e, index)
+                                      }
+                                      inputRef={(input) => {
+                                        if (activeInput === index)
+                                          input && input.focus();
+                                      }}
+                                      onFocus={(e) => {
+                                        if (activeInput === index) {
+                                          e.currentTarget.setSelectionRange(
+                                            e.currentTarget.value.length,
+                                            e.currentTarget.value.length
+                                          );
+                                          setActiveInput(null);
+                                        }
+                                      }}
+                                    />
+                                    <IconButton
+                                      onClick={() => handleClickRemove(index)}
+                                    >
+                                      <DeleteOutlineOutlined
+                                        style={{ color: "#eb6363" }}
+                                      />
+                                    </IconButton>
+                                    <IconButton
+                                      onClick={() => handleClickAdd(index)}
+                                    >
+                                      <Add />
+                                    </IconButton>
+                                  </div>
+                                </div>
+                              )}
+                            </Draggable>
+                          </>
+                        );
+                      })}
+                    </div>
+                  )}
+                </Droppable>
+              </DragDropContext>
+            </Box>
+            <ActionButtonGroup>
+              <Button
+                variant="contained"
+                onClick={handleClickDiscard}
+                style={{
+                  color: "#5f2ee5",
+                  background: "white",
+                  textTransform: "none",
+                }}
+              >
+                Discard
+              </Button>
+              <Button
+                variant="contained"
+                onClick={handleClickSave}
+                style={{ background: "#5f2ee5", textTransform: "none" }}
+              >
+                {isSaveClicked ? <CheckCircleOutline /> : "Save"}
+              </Button>
+              {loggedIn && (
+                <Button
+                  variant="contained"
+                  onClick={handleClickImport}
+                  style={{ background: "#5f2ee5", textTransform: "none" }}
+                >
+                  Import to Search
+                </Button>
+              )}
+            </ActionButtonGroup>
+          </Box>
+        </Router>
+      )}
+      <ToastContainer position="bottom-right" autoClose={3000} />
+    </>
   );
 };
 
