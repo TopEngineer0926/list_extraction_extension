@@ -66,6 +66,10 @@ const Home = () => {
   const [url, setUrl] = useState("");
   const [listLog, setListLog] = useState([]);
   const [capturedTextForItems, setCapturedTextForItems] = useState("");
+  const [btnLoading, setBtnLoading] = useState({
+    saveBtn: false,
+    importBtn: false,
+  });
 
   const navigate = useNavigate();
   const [loggedIn, setLoggedIn] = useState(false);
@@ -106,7 +110,7 @@ const Home = () => {
     setTempListData(listData);
   };
 
-  const handleClickSave = () => {
+  const handleClickSave = (type) => {
     setIsLoading(true);
     setListData(tempListData);
 
@@ -114,6 +118,11 @@ const Home = () => {
       return_data: tempListData,
       title: title,
     };
+
+    setBtnLoading({
+      ...btnLoading,
+      [type]: true,
+    });
 
     axios
       .put(`${API_ENDPOINT}/list_text/${id}`, data, {
@@ -129,10 +138,14 @@ const Home = () => {
       })
       .finally(() => {
         setIsLoading(false);
+        setBtnLoading({
+          ...btnLoading,
+          [type]: false,
+        });
       });
   };
 
-  const handleClickImport = () => {
+  const handleClickImport = (type) => {
     let user = JSON.parse(getUserInfo());
     let data = {
       user_id: user.user_id,
@@ -152,6 +165,11 @@ const Home = () => {
       },
     };
 
+    setBtnLoading({
+      ...btnLoading,
+      [type]: true,
+    });
+
     axios
       .post(`${MOONHUB_SEARCH_ENDPOINT}/lists/`, data, {
         headers: {
@@ -165,6 +183,12 @@ const Home = () => {
       .catch((e) => {
         const message = e?.response?.data?.detail;
         toast.error(message ? message : "List imported to search failed");
+      })
+      .finally(() => {
+        setBtnLoading({
+          ...btnLoading,
+          [type]: false,
+        });
       });
   };
 
@@ -622,16 +646,34 @@ const Home = () => {
               </Button>
               <Button
                 variant="contained"
-                onClick={handleClickSave}
+                onClick={() => handleClickSave("saveBtn")}
                 style={{ background: "#5f2ee5", textTransform: "none" }}
+                endIcon={
+                  btnLoading.saveBtn ? (
+                    <CircularIndeterminate
+                      color="white"
+                      width={25}
+                      height={25}
+                    />
+                  ) : null
+                }
               >
                 {isSaveClicked ? <CheckCircleOutline /> : "Save"}
               </Button>
               {loggedIn && (
                 <Button
                   variant="contained"
-                  onClick={handleClickImport}
+                  onClick={() => handleClickImport("importBtn")}
                   style={{ background: "#5f2ee5", textTransform: "none" }}
+                  endIcon={
+                    btnLoading.importBtn ? (
+                      <CircularIndeterminate
+                        color="white"
+                        width={25}
+                        height={25}
+                      />
+                    ) : null
+                  }
                 >
                   Import to Search
                 </Button>
