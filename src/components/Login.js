@@ -143,6 +143,11 @@ const Login = () => {
             value={form.password}
             onChange={(e) => handleChangeForm(e, "password")}
             error={errorFlag && form.password.length === 0}
+            onKeyPress={(ev) => {
+              if (ev.key === "Enter") {
+                handleClickLogin();
+              }
+            }}
           />
         </FormControl>
       </div>
