@@ -6,6 +6,7 @@ const ActionButtonGroup = styled("div")({
   justifyContent: "right",
   alignItems: "center",
   marginBottom: "10px",
+  marginTop: "10px",
   gap: "10px",
 });
 

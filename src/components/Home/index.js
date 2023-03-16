@@ -9,6 +9,10 @@ import {
   Typography,
   IconButton,
   FormLabel,
+  MenuItem,
+  FormControl,
+  Select,
+  InputLabel,
 } from "@mui/material";
 import {
   DeleteOutlineOutlined,
@@ -71,13 +75,29 @@ const Home = () => {
     importBtn: false,
   });
 
-  const navigate = useNavigate();
   const [loggedIn, setLoggedIn] = useState(false);
   const [userInfo, setUserInfo] = useState({
     user_id: "",
     user_email: "",
     auth_token: "",
   });
+
+  const filterTypes = [
+    "position",
+    "city",
+    "university",
+    "degree",
+    "major",
+    "company",
+    "title",
+  ];
+  const [filterType, setFilterType] = useState("");
+
+  const handleChangeFilterType = (event) => {
+    setFilterType(event.target.value);
+  };
+
+  const navigate = useNavigate();
 
   let port = chrome.runtime.connect({ name: "init_list_extraction" });
 
@@ -151,8 +171,9 @@ const Home = () => {
       user_id: user.user_id,
       name: title,
       type: "string",
-      mainType: category,
+      mainType: filterType,
       filter: {
+        label: title,
         list: listData.map((data) => {
           return {
             name: data,
@@ -448,7 +469,7 @@ const Home = () => {
               maxWidth: 600,
               bgColor: "background.paper",
               margin: "20px",
-              gap: "20px",
+              gap: "4px",
               display: "grid",
               justifyContent: "center",
             }}
@@ -523,6 +544,25 @@ const Home = () => {
                 placeholder="Name"
                 variant="outlined"
               />
+            </TitlePanel>
+            <TitlePanel>
+              <FormControl size="small">
+                <InputLabel id="demo-select-small">Filter</InputLabel>
+                <Select
+                  labelId="demo-select-small"
+                  id="demo-select-small"
+                  value={filterType}
+                  label="Filter"
+                  style={{ background: "#f9fafb", color: "#89888e" }}
+                  onChange={handleChangeFilterType}
+                >
+                  {filterTypes.map((fType, index) => (
+                    <MenuItem value={fType} key={index}>
+                      {fType}
+                    </MenuItem>
+                  ))}
+                </Select>
+              </FormControl>
             </TitlePanel>
             <Box
               sx={{
@@ -685,7 +725,7 @@ const Home = () => {
               )}
             </ActionButtonGroup>
             {loggedIn && listData.length === 0 && (
-              <div style={{ textAlign: "right", color: "red", marginTop: -10 }}>
+              <div style={{ textAlign: "right", color: "red", marginTop: -5 }}>
                 You must save the list before importing
               </div>
             )}
