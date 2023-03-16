@@ -23,7 +23,7 @@ const App = () => {
       children: [
         {
           path: "",
-          element: <Login />,
+          element: <Home />,
         },
         {
           path: "login",
