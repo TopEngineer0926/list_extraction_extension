@@ -36,8 +36,8 @@ import {
 import { Link, useNavigate } from "react-router-dom";
 import { ToastContainer, toast } from "react-toastify";
 
-// const API_ENDPOINT = 'https://moonhub-list-backend.herokuapp.com/api';
-const API_ENDPOINT = "https://moonhub-list-backend-develop.herokuapp.com/api";
+// const API_ENDPOINT = 'https://list-extraction-backend-prod-ggwnhuypbq-uc.a.run.app/api';
+const API_ENDPOINT = "https://list-extraction-backend-dev-ggwnhuypbq-uc.a.run.app/api";
 
 // const API_ENDPOINT = 'http://192.168.105.55:8000/api';
 
