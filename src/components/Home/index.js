@@ -73,6 +73,7 @@ const Home = () => {
   const [btnLoading, setBtnLoading] = useState({
     saveBtn: false,
     importBtn: false,
+    copyListBtn: false,
   });
 
   const [loggedIn, setLoggedIn] = useState(false);
@@ -163,6 +164,25 @@ const Home = () => {
           [type]: false,
         });
       });
+  };
+
+  const handleClickCopyList = (type) => {
+    setBtnLoading({
+      ...btnLoading,
+      [type]: true,
+    });
+
+    setTimeout(() => {
+      let copiedText = JSON.stringify(tempListData);
+      navigator.clipboard.writeText(copiedText).then(function () {
+        toast.success("List data copied to clipboard successfully!");
+      });
+
+      setBtnLoading({
+        ...btnLoading,
+        [type]: false,
+      });
+    }, 1000);
   };
 
   const handleClickImport = (type) => {
@@ -699,6 +719,22 @@ const Home = () => {
                 }
               >
                 {isSaveClicked ? <CheckCircleOutline /> : "Save"}
+              </Button>
+              <Button
+                variant="contained"
+                onClick={() => handleClickCopyList("copyListBtn")}
+                style={{ background: "#5f2ee5", textTransform: "none" }}
+                endIcon={
+                  btnLoading.copyListBtn ? (
+                    <CircularIndeterminate
+                      color="white"
+                      width={25}
+                      height={25}
+                    />
+                  ) : null
+                }
+              >
+                Copy List
               </Button>
               {loggedIn && (
                 <Button
