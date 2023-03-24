@@ -13,6 +13,9 @@ import {
   FormControl,
   Select,
   InputLabel,
+  FormGroup,
+  FormControlLabel,
+  Checkbox,
 } from "@mui/material";
 import {
   DeleteOutlineOutlined,
@@ -37,7 +40,8 @@ import { Link, useNavigate } from "react-router-dom";
 import { ToastContainer, toast } from "react-toastify";
 
 // const API_ENDPOINT = 'https://list-extraction-backend-prod-ggwnhuypbq-uc.a.run.app/api';
-const API_ENDPOINT = "https://list-extraction-backend-dev-ggwnhuypbq-uc.a.run.app/api";
+const API_ENDPOINT =
+  "https://list-extraction-backend-dev-ggwnhuypbq-uc.a.run.app/api";
 
 // const API_ENDPOINT = 'http://192.168.105.55:8000/api';
 
@@ -93,6 +97,7 @@ const Home = () => {
     "title",
   ];
   const [filterType, setFilterType] = useState("");
+  const [developerMode, setDeveloperMode] = useState(false);
 
   const handleChangeFilterType = (event) => {
     setFilterType(event.target.value);
@@ -135,9 +140,16 @@ const Home = () => {
     setIsLoading(true);
     setListData(tempListData);
 
+    let user = JSON.parse(getUserInfo());
     let data = {
-      return_data: tempListData,
+      url: url,
+      category: category,
+      dev_mode: developerMode,
       title: title,
+      filter: filterType,
+      user_id: loggedIn ? user.user_id : "",
+      user_email: loggedIn ? user.user_email : "",
+      return_data: tempListData,
     };
 
     setBtnLoading({
@@ -289,11 +301,14 @@ const Home = () => {
   const fetchListData = (requestData) => {
     setIsLoading(true);
 
+    let user = JSON.parse(getUserInfo());
     let body = {
       request: requestData,
       title: title,
       category: category,
       url: url,
+      user_id: loggedIn ? user.user_id : "",
+      user_email: loggedIn ? user.user_email : "",
     };
 
     axios
@@ -379,6 +394,10 @@ const Home = () => {
     }
   }, []);
 
+  const handleChangeDeveloperMode = (e) => {
+    setDeveloperMode(e.target.checked);
+  };
+
   return (
     <>
       {capturedText.length === 0 || isLoading ? (
@@ -404,7 +423,6 @@ const Home = () => {
                 <Button
                   variant="outlined"
                   style={{
-                    width: "20%",
                     color: "grey",
                     borderColor: "#e8e8e8",
                     textTransform: "none",
@@ -432,7 +450,6 @@ const Home = () => {
                   variant="contained"
                   style={{
                     background: "#5f2ee5",
-                    width: "50%",
                     textTransform: "none",
                   }}
                   onClick={handleClickSignIn}
@@ -480,6 +497,23 @@ const Home = () => {
               <Typography variant="">Extracting {category} List...</Typography>
             </LoadingPanel>
           </div>
+          <FormGroup sx={{ position: "fixed", bottom: 0, margin: "25px" }}>
+            <FormControlLabel
+              control={
+                <Checkbox
+                  checked={developerMode}
+                  onChange={handleChangeDeveloperMode}
+                  sx={{
+                    color: "#5f2ee5",
+                    "&.Mui-checked": {
+                      color: "#5f2ee5",
+                    },
+                  }}
+                />
+              }
+              label="Developer mode"
+            />
+          </FormGroup>
         </Router>
       ) : (
         <Router>
