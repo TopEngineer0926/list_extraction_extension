@@ -78,6 +78,7 @@ const Home = () => {
     saveBtn: false,
     importBtn: false,
     copyListBtn: false,
+    downloadListBtn: false,
   });
 
   const [loggedIn, setLoggedIn] = useState(false);
@@ -396,6 +397,33 @@ const Home = () => {
 
   const handleChangeDeveloperMode = (e) => {
     setDeveloperMode(e.target.checked);
+  };
+
+  const handleClickDownloadList = (type) => {
+    setBtnLoading({
+      ...btnLoading,
+      [type]: true,
+    });
+
+    setTimeout(() => {
+      var content = tempListData.join("\n");
+
+      var downloadLink = document.createElement("a");
+      downloadLink.setAttribute(
+        "href",
+        "data:text/plain;charset=utf-8," + encodeURIComponent(content)
+      );
+      downloadLink.setAttribute("download", `${title}.txt`);
+      downloadLink.style.display = "none";
+      document.body.appendChild(downloadLink);
+      downloadLink.click();
+      document.body.removeChild(downloadLink);
+
+      setBtnLoading({
+        ...btnLoading,
+        [type]: false,
+      });
+    }, 1000);
   };
 
   return (
@@ -769,6 +797,22 @@ const Home = () => {
                 }
               >
                 Copy List
+              </Button>
+              <Button
+                variant="contained"
+                onClick={() => handleClickDownloadList("downloadListBtn")}
+                style={{ background: "#5f2ee5", textTransform: "none" }}
+                endIcon={
+                  btnLoading.downloadListBtn ? (
+                    <CircularIndeterminate
+                      color="white"
+                      width={25}
+                      height={25}
+                    />
+                  ) : null
+                }
+              >
+                Download List
               </Button>
               {loggedIn && (
                 <Button
