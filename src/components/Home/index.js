@@ -1,4 +1,3 @@
-/*global chrome*/
 import "./Home.css";
 import { useEffect, useState } from "react";
 import { goTo, Router } from "react-chrome-extension-router";
