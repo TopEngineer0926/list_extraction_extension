@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import './Card.css';
-import { Box, TextField, FormLabel } from '@mui/material';
+import { Box, TextField } from "@mui/material";
 
 const Card = ({ setCategory, handleClickGetText, setInvalidRequired }) => {
   const [other, setOther] = useState('');

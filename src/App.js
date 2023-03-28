@@ -1,11 +1,6 @@
 import Login from "./components/Login";
 import Home from "./components/Home";
-import {
-  createBrowserRouter,
-  createMemoryRouter,
-  Outlet,
-  RouterProvider,
-} from "react-router-dom";
+import { createMemoryRouter, Outlet, RouterProvider } from "react-router-dom";
 
 const CustomLayout = () => {
   return (
