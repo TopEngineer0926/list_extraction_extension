@@ -138,6 +138,11 @@ const Home = () => {
   };
 
   const handleClickSave = (type) => {
+    if (title === "") {
+      toast.warn("Name field should be required!");
+      return;
+    }
+
     setIsLoading(true);
     setListData(tempListData);
 
@@ -180,6 +185,11 @@ const Home = () => {
   };
 
   const handleClickCopyList = (type) => {
+    if (title === "") {
+      toast.warn("Name field should be required!");
+      return;
+    }
+
     setBtnLoading({
       ...btnLoading,
       [type]: true,
@@ -199,6 +209,11 @@ const Home = () => {
   };
 
   const handleClickImport = (type) => {
+    if (title === "") {
+      toast.warn("Name field should be required!");
+      return;
+    }
+
     let user = JSON.parse(getUserInfo());
     let data = {
       user_id: user.user_id,
@@ -400,6 +415,11 @@ const Home = () => {
   };
 
   const handleClickDownloadList = (type) => {
+    if (title === "") {
+      toast.warn("Name field should be required!");
+      return;
+    }
+
     setBtnLoading({
       ...btnLoading,
       [type]: true,
