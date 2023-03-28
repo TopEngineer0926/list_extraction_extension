@@ -1,7 +1,6 @@
-/*global chrome*/
 import "./Home.css";
 import { useEffect, useState } from "react";
-import { goBack, goTo, Router } from "react-chrome-extension-router";
+import { goTo, Router } from "react-chrome-extension-router";
 import {
   Box,
   Button,
@@ -17,12 +16,7 @@ import {
   FormControlLabel,
   Checkbox,
 } from "@mui/material";
-import {
-  DeleteOutlineOutlined,
-  DragIndicator,
-  Add,
-  CheckCircleOutline,
-} from "@mui/icons-material";
+import { DeleteOutlineOutlined, DragIndicator, Add } from "@mui/icons-material";
 import axios from "axios";
 import CircularIndeterminate from "../CircularIndeterminate";
 import Card from "../Card";
@@ -62,12 +56,11 @@ const ServerError = () => {
 
 const Home = () => {
   const [capturedText, setCapturedText] = useState("");
-  const [title, setTitle] = useState("");
+  const [pageName, setPageName] = useState("");
   const [listData, setListData] = useState([]);
   const [id, setId] = useState("");
   const [tempListData, setTempListData] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
-  const [isSaveClicked, setIsSaveClicked] = useState(false);
   const [activeInput, setActiveInput] = useState();
   const [category, setCategory] = useState("");
   const [invalidRequired, setInvalidRequired] = useState(false);
@@ -78,6 +71,7 @@ const Home = () => {
     saveBtn: false,
     importBtn: false,
     copyListBtn: false,
+    downloadListBtn: false,
   });
 
   const [loggedIn, setLoggedIn] = useState(false);
@@ -137,6 +131,11 @@ const Home = () => {
   };
 
   const handleClickSave = (type) => {
+    if (pageName === "") {
+      toast.warn("Name field should be required!");
+      return;
+    }
+
     setIsLoading(true);
     setListData(tempListData);
 
@@ -145,7 +144,7 @@ const Home = () => {
       url: url,
       category: category,
       dev_mode: developerMode,
-      title: title,
+      title: pageName,
       filter: filterType,
       user_id: loggedIn ? user.user_id : "",
       user_email: loggedIn ? user.user_email : "",
@@ -179,6 +178,11 @@ const Home = () => {
   };
 
   const handleClickCopyList = (type) => {
+    if (pageName === "") {
+      toast.warn("Name field should be required!");
+      return;
+    }
+
     setBtnLoading({
       ...btnLoading,
       [type]: true,
@@ -198,14 +202,19 @@ const Home = () => {
   };
 
   const handleClickImport = (type) => {
+    if (pageName === "") {
+      toast.warn("Name field should be required!");
+      return;
+    }
+
     let user = JSON.parse(getUserInfo());
     let data = {
       user_id: user.user_id,
-      name: title,
+      name: pageName,
       type: "string",
       mainType: filterType,
       filter: {
-        label: title,
+        label: pageName,
         list: listData.map((data) => {
           return {
             name: data,
@@ -282,8 +291,8 @@ const Home = () => {
     setTempListData(updatedList);
   };
 
-  const handleChangeTitle = (e) => {
-    setTitle(e.target.value);
+  const handleChangePageName = (e) => {
+    setPageName(e.target.value);
   };
 
   useEffect(() => {
@@ -304,7 +313,7 @@ const Home = () => {
     let user = JSON.parse(getUserInfo());
     let body = {
       request: requestData,
-      title: title,
+      title: pageName,
       category: category,
       url: url,
       user_id: loggedIn ? user.user_id : "",
@@ -319,12 +328,13 @@ const Home = () => {
         const data = res.data;
         let temp = [];
 
-        data.result &&
-          data.result.map((d, index) => {
-            if (tempListData.indexOf(d) < 0) {
-              temp.push(d);
+        if (data.result) {
+          for (let i = 0; i < data.result.length; i++) {
+            if (tempListData.indexOf(data.result[i]) < 0) {
+              temp.push(data.result[i]);
             }
-          });
+          }
+        }
 
         setTempListData([...tempListData, ...temp]);
         setId(data.id);
@@ -332,12 +342,13 @@ const Home = () => {
       .catch((err) => {
         console.log(err);
         let flag = 0;
-        listLog.map((item) => {
-          if (item.category && item.category === category) {
+        for (let i = 0; i < listLog.length; i++) {
+          if (listLog[i].category && listLog[i].category === category) {
             flag = 1;
-            setListData(item.listData);
+            setListData(listLog[i].listData);
           }
-        });
+        }
+
         if (flag === 0) {
           goTo(ServerError);
         }
@@ -356,12 +367,14 @@ const Home = () => {
       category: category,
       listData: listData,
     };
+
     let flag = 1;
-    listLog.map((item, index) => {
-      if (item.category && item.category === category) {
+    for (let i = 0; i < listLog.length; i++) {
+      if (listLog[i].category && listLog[i].category === category) {
         flag = 0;
       }
-    });
+    }
+
     if (flag === 1) {
       let _tmpListLog = [...listLog];
       _tmpListLog.push(data);
@@ -396,6 +409,41 @@ const Home = () => {
 
   const handleChangeDeveloperMode = (e) => {
     setDeveloperMode(e.target.checked);
+  };
+
+  const handleClickDownloadList = (type) => {
+    if (pageName === "") {
+      toast.warn("Name field should be required!");
+      return;
+    }
+
+    setBtnLoading({
+      ...btnLoading,
+      [type]: true,
+    });
+
+    setTimeout(() => {
+      var content = tempListData.join("\n");
+
+      var downloadLink = document.createElement("a");
+      downloadLink.setAttribute(
+        "href",
+        "data:text/plain;charset=utf-8," + encodeURIComponent(content)
+      );
+      downloadLink.setAttribute(
+        "download",
+        `${pageName.toLowerCase().replace(" ", "_")}.txt`
+      );
+      downloadLink.style.display = "none";
+      document.body.appendChild(downloadLink);
+      downloadLink.click();
+      document.body.removeChild(downloadLink);
+
+      setBtnLoading({
+        ...btnLoading,
+        [type]: false,
+      });
+    }, 1000);
   };
 
   return (
@@ -580,11 +628,11 @@ const Home = () => {
               <TextField
                 required
                 id="outlined-required"
-                value={title}
-                onChange={handleChangeTitle}
+                value={pageName}
+                onChange={handleChangePageName}
                 onKeyPress={(ev) => {
                   if (ev.key === "Enter") {
-                    handleChangeTitle();
+                    handleChangePageName();
                   }
                 }}
                 style={{ background: "#f9fafb", color: "#89888e" }}
@@ -752,7 +800,7 @@ const Home = () => {
                   ) : null
                 }
               >
-                {isSaveClicked ? <CheckCircleOutline /> : "Save"}
+                Save
               </Button>
               <Button
                 variant="contained"
@@ -769,6 +817,22 @@ const Home = () => {
                 }
               >
                 Copy List
+              </Button>
+              <Button
+                variant="contained"
+                onClick={() => handleClickDownloadList("downloadListBtn")}
+                style={{ background: "#5f2ee5", textTransform: "none" }}
+                endIcon={
+                  btnLoading.downloadListBtn ? (
+                    <CircularIndeterminate
+                      color="white"
+                      width={25}
+                      height={25}
+                    />
+                  ) : null
+                }
+              >
+                Download List
               </Button>
               {loggedIn && (
                 <Button
