@@ -15,6 +15,7 @@ import {
   FormGroup,
   FormControlLabel,
   Checkbox,
+  LinearProgress,
 } from "@mui/material";
 import { DeleteOutlineOutlined, DragIndicator, Add } from "@mui/icons-material";
 import axios from "axios";
@@ -32,6 +33,7 @@ import {
 } from "../../utils";
 import { Link, useNavigate } from "react-router-dom";
 import { ToastContainer, toast } from "react-toastify";
+import PropTypes from "prop-types";
 
 // const API_ENDPOINT = 'https://list-extraction-backend-prod-ggwnhuypbq-uc.a.run.app/api';
 const API_ENDPOINT =
@@ -52,6 +54,37 @@ const ServerError = () => {
       </p>
     </div>
   );
+};
+
+const LinearProgressWithLabel = (props) => {
+  return (
+    <Box sx={{ display: "flex", alignItems: "center" }}>
+      <Box sx={{ width: "100%", mr: 1 }}>
+        <LinearProgress
+          variant="determinate"
+          sx={{
+            "& .MuiLinearProgress-bar": {
+              backgroundColor: "#5f2ee5",
+            },
+          }}
+          {...props}
+        />
+      </Box>
+      <Box sx={{ minWidth: 35 }}>
+        <Typography variant="body2" color="text.secondary">{`${Math.round(
+          props.value
+        )}%`}</Typography>
+      </Box>
+    </Box>
+  );
+};
+
+LinearProgressWithLabel.propTypes = {
+  /**
+   * The value of the progress indicator for the determinate and buffer variants.
+   * Value between 0 and 100.
+   */
+  value: PropTypes.number.isRequired,
 };
 
 const Home = () => {
@@ -92,6 +125,7 @@ const Home = () => {
   ];
   const [filterType, setFilterType] = useState("");
   const [developerMode, setDeveloperMode] = useState(false);
+  const [progress, setProgress] = useState(0);
 
   const handleChangeFilterType = (event) => {
     setFilterType(event.target.value);
@@ -310,6 +344,18 @@ const Home = () => {
   const fetchListData = (requestData) => {
     setIsLoading(true);
 
+    setProgress(0);
+
+    let timer = setInterval(() => {
+      setProgress((oldProgress) => {
+        if (oldProgress === 100) {
+          return 100;
+        }
+        const diff = Math.random() * 10;
+        return Math.min(oldProgress + diff, 100);
+      });
+    }, 500);
+
     let user = JSON.parse(getUserInfo());
     let body = {
       request: requestData,
@@ -354,6 +400,11 @@ const Home = () => {
         }
       })
       .finally(() => {
+        if (timer != null) {
+          clearInterval(timer);
+          timer = null;
+        }
+        setProgress(100);
         setIsLoading(false);
       });
   };
@@ -567,6 +618,9 @@ const Home = () => {
             >
               <CircularIndeterminate color={"#5f2ee5"} width={40} height={40} />
               <Typography variant="">Extracting {category} List...</Typography>
+              <Box sx={{ width: "50%", marginTop: "10px" }}>
+                <LinearProgressWithLabel value={progress} />
+              </Box>
             </LoadingPanel>
           </div>
           <FormGroup sx={{ position: "fixed", bottom: 0, margin: "25px" }}>
