@@ -446,6 +446,13 @@ const Home = () => {
     }, 1000);
   };
 
+  const handleClickBackToHome = () => {
+    setInvalidRequired(false);
+    setCapturedText("");
+    setUrl("");
+    setIsLoading(false);
+  };
+
   return (
     <>
       {capturedText.length === 0 || isLoading ? (
@@ -525,18 +532,35 @@ const Home = () => {
                 Please type what you want to extract...
               </FormLabel>
             </div>
-            <TextCaptureButton
-              variant="contained"
-              onClick={handleClickGetText}
-              style={{
-                background: "#5f2ee5",
-                width: "32%",
-                margin: "auto",
-                marginTop: "20px",
-              }}
-            >
-              Extract List
-            </TextCaptureButton>
+            {isLoading ? (
+              <TextCaptureButton
+                variant="outlined"
+                style={{
+                  color: "grey",
+                  borderColor: "#e8e8e8",
+                  textTransform: "none",
+                  width: "32%",
+                  margin: "auto",
+                  marginTop: "20px",
+                }}
+                onClick={handleClickBackToHome}
+              >
+                Back to Home
+              </TextCaptureButton>
+            ) : (
+              <TextCaptureButton
+                variant="contained"
+                onClick={handleClickGetText}
+                style={{
+                  background: "#5f2ee5",
+                  width: "32%",
+                  margin: "auto",
+                  marginTop: "20px",
+                }}
+              >
+                Extract List
+              </TextCaptureButton>
+            )}
             <LoadingPanel
               loading={isLoading ? isLoading : undefined}
               style={{ marginTop: "226px" }}
