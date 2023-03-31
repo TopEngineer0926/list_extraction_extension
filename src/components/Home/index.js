@@ -170,7 +170,6 @@ const Home = () => {
       return;
     }
 
-    setIsLoading(true);
     setListData(tempListData);
 
     let user = JSON.parse(getUserInfo());
@@ -197,13 +196,14 @@ const Home = () => {
       .then((res) => {
         const data = res.data;
         setListData(data.return_data);
+        toast.success("List saved successfully!");
       })
       .catch((err) => {
         setTempListData(listData);
         console.log(err);
+        toast.error("Failed to save the list, please try again!");
       })
       .finally(() => {
-        setIsLoading(false);
         setBtnLoading({
           ...btnLoading,
           [type]: false,
